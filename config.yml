@@ -1,0 +1,41 @@
+prefix: "&f&k[&1J&aA&cS&5P&f&k]"
+
+spawner_description:
+  enable: true
+  time_unit: TICK #TICK, SECOND, MINUTE. 1 second = 20 ticks, 1 minute = 60 seconds.
+  lore:
+    - "&8&m&l-=-=-=-=-=-=-=-=-=-=-=-="
+    - "&d&lStatistics:"
+    - "  &7- &4Min delay: &6<min_delay>"
+    - "  &7- &4Max delay: &6<max_delay>"
+    - "  &7- &4Required play range: &6<player_range>"
+    - "  &7- &4Spawn count: &6<count>"
+    - "  &7- &4Spawn range: &6<range>"
+    - " "
+    - "&9Spawned type: &6&l<mob_name>"
+
+#Number of characters a player can set for their spawner
+name_length:
+  max: 15
+  min: 3
+  space_counter: false 
+  color_code_counter: true
+   
+holographic:
+  distance: 1.0 #Distance between name and spawner (starts at the top of spawner)
+  gap: 0.4 #Distance between name and first line of lore
+  space: 0.2 #Distance between every line of lore
+
+#############      MESSAGES      ############# 
+reload: "&aReloaded successfully!"
+no_permission: "&cYou don't have permisson to execute that command!"
+#Header and footer of the help list, will not show if blank
+help_header: "<prefix> &aList of all available commands:"
+help_footer: "&m&l=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
+require_spawner: "&cYou are not holding a spawner!"
+name_too_long: "&cYour name is too long. Maximum is &4&l<max> &ccharacters."
+name_too_short: "&cYour name is too short. Minimum is &4&l<min> &ccharacters."
+not_a_number: "&c<input> is not a number. Try another one!"
+below_zero: "&c<input> is not allowed to be below zero!"
+out_of_bound: "&c<input> is over the roof. Please make it smaller!"
+clear_message: "&a&lDone!"

@@ -1,0 +1,47 @@
+#This file will allow you to modify the description of each command available in this plugin.
+#Please read the example and the keys below to understand:
+#   help:
+#     usage: /jasp help
+#     description: List all available commands.
+#     permission: jasp.command.help
+#
+#Keys:
+#  - "help:" The command you want to modify
+#  - "usage:" How to execute the command
+#  - "description:" What this command does
+#  - "permission:" Requirement in order to perform command (this line won't show up if "show_permission:" is "false")
+#
+#P/S: Default description will be applied if it is left blank or non-exist.
+#P/S2: Feel free to add color to make it look less messy.
+
+
+show_permission: true
+commands:
+  help:
+    usage: "/jasp help"
+    description: List all available commands.
+    permission: jasp.command.help
+  reload:
+    usage: "/jasp reload"
+    description: Reload plugin.
+    permission: jasp.admin.reload
+  set:
+    usage: "/jasp set <mob name>"
+    description: Set a specific mod to holding spawner.
+    permission: jasp.command.set
+  moblist:
+    usage: "/jasp moblist"
+    description: List all the mobs that are available on this server.
+    permission: jasp.command.moblist
+  setname:
+    usage: "/jasp setname <name>"
+    description: Name your spawner.
+    permission: jasp.command.setname
+  lore:
+    usage: "/jasp lore [add/set/remove/reset] [line (if set/remove)] <lore>"
+    description: "add/set/remove/reset lore of holding spawner."
+    permission: jasp.command.lore.[add/set/remove/reset]
+  clear:
+    usage: "/jasp clear <radius>"
+    description: "Clear plugin's floating name and lore"
+    permission: jasp.command.clear

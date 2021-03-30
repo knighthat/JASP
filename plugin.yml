@@ -1,0 +1,11 @@
+main: me.TnKnight.JASP.JustAnotherSpawnerPickup
+name: JustAnotherSpawnerPickup
+version: 0.0.1
+api-version: 1.13
+author: TnKnight
+
+commands:
+  justanotherspawnerpickup:
+    permisson: "jasp.admin.reload"
+    aliases:
+      - jasp
