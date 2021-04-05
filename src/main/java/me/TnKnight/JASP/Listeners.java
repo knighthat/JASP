@@ -8,7 +8,6 @@ import java.util.Map;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.CreatureSpawner;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
@@ -51,37 +50,20 @@ public class Listeners implements Listener {
 			BlockStateMeta sMeta = (BlockStateMeta) spawner.getItemMeta();
 			sMeta.setBlockState(PStorage.setSpawn(e.getBlock().getState(), sMeta.getBlockState()));
 			List<String> lore = new ArrayList<>();
-			if (plugin.getConfig().getBoolean("spawner_description.enable")) {
-				int time_unit = 1;
-				if (!plugin.cfg.getConfig().getString("spawner_description.time_unit").isEmpty())
-					switch (plugin.cfg.getConfig().getString("spawner_description.time_unit").toLowerCase()) {
-					case "second":
-						time_unit = 20;
-						break;
-					case "minute":
-						time_unit = 1200;
-						break;
-					default:
-						time_unit = 1;
-						break;
-					}
-				List<String> names = new ArrayList<>();
-				armorStands.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-						.forEachOrdered(value -> names.add(value.getKey().getCustomName()));
-				if (!names.isEmpty())
-					for (int i = 0; i < names.size(); i++)
-						if (i == 0) {
-							sMeta.setDisplayName(names.get(i));
-						} else
-							lore.add(names.get(i));
-				plugin.cfg.getConfig().getStringList("spawner_description.lore").forEach(line -> lore.add(line));
-				final CreatureSpawner info = (CreatureSpawner) sMeta.getBlockState();
-				sMeta.setLore(PStorage.replaceLore(lore, info.getMinSpawnDelay() / time_unit,
-						info.getMaxSpawnDelay() / time_unit, info.getRequiredPlayerRange(), info.getSpawnCount(),
-						info.getSpawnRange(), info.getSpawnedType()));
-				spawner.setItemMeta(sMeta);
-				e.getPlayer().getInventory().addItem(spawner);
-			}
+			List<String> names = new ArrayList<>();
+			armorStands.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+					.forEachOrdered(value -> names.add(value.getKey().getCustomName()));
+			if (!names.isEmpty())
+				for (int i = 0; i < names.size(); i++)
+					if (i == 0) {
+						sMeta.setDisplayName(names.get(i));
+					} else
+						lore.add(names.get(i));
+			sMeta.setLore(lore);
+			spawner.setItemMeta(sMeta);
+			if (plugin.getConfig().getBoolean("spawner_description.enable"))
+				PStorage.replaceLoreFromItem(spawner);
+			e.getPlayer().getInventory().addItem(spawner);
 		}
 	}
 

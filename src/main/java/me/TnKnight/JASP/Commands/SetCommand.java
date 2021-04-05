@@ -11,15 +11,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 
-import me.TnKnight.JASP.JustAnotherSpawnerPickup;
 import me.TnKnight.JASP.MobList;
 import me.TnKnight.JASP.PStorage;
 
 public class SetCommand extends SubCommand {
-
-	public SetCommand(JustAnotherSpawnerPickup plugin) {
-		super(plugin);
-	}
 
 	@Override
 	public String getName() {
@@ -27,7 +22,7 @@ public class SetCommand extends SubCommand {
 	}
 
 	@Override
-	public String getDiscription() {
+	public String getDescription() {
 		String des = "Set a specific mod to holding spawner.";
 		if (getCmds().getString(desPath) != null && !getCmds().getString(desPath).isEmpty())
 			des = getCmds().getString(desPath);
@@ -52,13 +47,13 @@ public class SetCommand extends SubCommand {
 			return;
 		}
 		if (args.length < 2) {
-			player.sendMessage(getSyntax());
+			player.spigot().sendMessage(getUsage().create());
 			return;
 		}
 		if (!player.getInventory().getItemInMainHand().getType().equals(Material.SPAWNER)) {
 			String msg = "You are not holding a spawner!";
-			if (!plugin.cfg.getConfig().getString("require_spawner").isEmpty())
-				msg = plugin.cfg.getConfig().getString("require_spawner");
+			if (!getConfig().getString("require_spawner").isEmpty())
+				msg = getConfig().getString("require_spawner");
 			player.sendMessage(PStorage.setColor(msg));
 			return;
 		}
@@ -67,37 +62,16 @@ public class SetCommand extends SubCommand {
 				ItemStack spawner = new ItemStack(player.getInventory().getItemInMainHand());
 				BlockStateMeta sMeta = (BlockStateMeta) spawner.getItemMeta();
 				CreatureSpawner sType = (CreatureSpawner) sMeta.getBlockState();
-				final String spawnedType = sType.getSpawnedType().toString();
 				sType.setSpawnedType(EntityType.valueOf(MobList.getAvailables().get(i).toString()));
 				sMeta.setBlockState(sType);
-				if (plugin.cfg.getConfig().getBoolean("spawner_description.enable"))
-					if (sMeta.hasLore()) {
-						List<String> lore = new ArrayList<>();
-						sMeta.getLore().forEach(
-								string -> lore.add(string.replace(spawnedType, sType.getSpawnedType().toString())));
-						sMeta.setLore(lore);
-					} else {
-						List<String> lore = new ArrayList<>();
-						final CreatureSpawner info = (CreatureSpawner) sMeta.getBlockState();
-						int time_unit = 1;
-						switch (plugin.cfg.getConfig().getString("spawner_description.time_unit").toLowerCase()) {
-						case "second":
-							time_unit = 20;
-							break;
-						case "minute":
-							time_unit = 1200;
-							break;
-						default:
-							time_unit = 1;
-							break;
-						}
-						for (String new_lore : PStorage.replaceLore(lore, info.getMinSpawnDelay() / time_unit,
-								info.getMaxSpawnDelay() / time_unit, info.getRequiredPlayerRange(),
-								info.getSpawnCount(), info.getSpawnRange(), info.getSpawnedType()))
-							lore.add(new_lore);
-						sMeta.setLore(lore);
-					}
+				List<String> lore = new ArrayList<>();
+				for (int s = 0; s < sMeta.getLore().size()
+						- getConfig().getStringList("spawner_description.lore").size(); s++)
+					lore.add(PStorage.setColor(sMeta.getLore().get(s)));
+				sMeta.setLore(lore);
 				spawner.setItemMeta(sMeta);
+				if (getConfig().getBoolean("spawner_description.enable"))
+					PStorage.replaceLoreFromItem(spawner);
 				if (player.getInventory().getItemInMainHand().getAmount() > 1) {
 					int amount = 1;
 					if (args.length >= 3)
@@ -112,11 +86,9 @@ public class SetCommand extends SubCommand {
 				} else
 					player.getInventory().setItemInMainHand(spawner);
 				player.updateInventory();
-				break;
-			} else if (i == MobList.getAvailables().size() - 1) {
-				Manager.get("moblist").onExecute(sender, new String[] { "moblist" }, true);
-				break;
+				return;
 			}
+		Manager.get("moblist").onExecute(sender, new String[] { "moblist" }, true);
 	}
 
 }

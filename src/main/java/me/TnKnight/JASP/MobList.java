@@ -1,6 +1,8 @@
 package me.TnKnight.JASP;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.bukkit.entity.EntityType;
 
@@ -13,7 +15,7 @@ public enum MobList {
 	ZOMBIE_VILLAGER, CAT, FOX, PANDA, PILLAGER, RAVAGER, TRADER_LLAMA, WANDERING_TRADER, BEE, HOGLIN, PIGLIN, STRIDER,
 	ZOGLIN, ZOMBIFIED_PIGLIN;
 
-	public static ArrayList<MobList> getAvailables() {
+	public static List<MobList> getAvailables() {
 		ArrayList<MobList> list = new ArrayList<>();
 		ArrayList<String> eType = new ArrayList<>();
 		for (EntityType e : EntityType.values())
@@ -21,7 +23,7 @@ public enum MobList {
 		for (MobList mob : MobList.values())
 			if (eType.contains(mob.toString()))
 				list.add(mob);
-		return list;
+		return list.stream().sorted().collect(Collectors.toList());
 	}
 
 }

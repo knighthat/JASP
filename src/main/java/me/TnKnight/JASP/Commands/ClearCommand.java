@@ -5,15 +5,10 @@ import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
-import me.TnKnight.JASP.JustAnotherSpawnerPickup;
 import me.TnKnight.JASP.Listeners;
 import me.TnKnight.JASP.PStorage;
 
 public class ClearCommand extends SubCommand {
-
-	public ClearCommand(JustAnotherSpawnerPickup plugin) {
-		super(plugin);
-	}
 
 	@Override
 	public String getName() {
@@ -21,7 +16,7 @@ public class ClearCommand extends SubCommand {
 	}
 
 	@Override
-	public String getDiscription() {
+	public String getDescription() {
 		String des = "List all available commands.";
 		if (getCmds().getString(desPath) != null && !getCmds().getString(desPath).isEmpty())
 			des = getCmds().getString(desPath);
@@ -46,7 +41,7 @@ public class ClearCommand extends SubCommand {
 			return;
 		}
 		if (args.length < 2) {
-			player.sendMessage(getSyntax());
+			player.spigot().sendMessage(getUsage().create());
 			return;
 		}
 		int radius = PStorage.isInt(player, args[1]) ? Integer.parseInt(args[1]) : 0;
@@ -55,8 +50,8 @@ public class ClearCommand extends SubCommand {
 		player.getWorld().getNearbyEntities(player.getLocation(), radius, radius, radius).stream()
 				.filter(e -> e.getType().equals(EntityType.ARMOR_STAND))
 				.filter(e -> ((ArmorStand) e).getHealth() == Listeners.serial).forEach(e -> e.remove());
-		String msg = plugin.cfg.getConfig().getString("clear_message").isEmpty() ? "Done!"
-				: plugin.cfg.getConfig().getString("clear_message");
+		String msg = getConfig().getString("clear_message").isEmpty() ? "Done!"
+				: getConfig().getString("clear_message");
 		player.sendMessage(PStorage.setColor(msg));
 	}
 

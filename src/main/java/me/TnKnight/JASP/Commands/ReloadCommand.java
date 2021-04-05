@@ -4,14 +4,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import me.TnKnight.JASP.JustAnotherSpawnerPickup;
 import me.TnKnight.JASP.PStorage;
 
 public class ReloadCommand extends SubCommand {
-
-	public ReloadCommand(JustAnotherSpawnerPickup plugin) {
-		super(plugin);
-	}
 
 	@Override
 	public String getName() {
@@ -19,7 +14,7 @@ public class ReloadCommand extends SubCommand {
 	}
 
 	@Override
-	public String getDiscription() {
+	public String getDescription() {
 		String des = "Reload plugin.";
 		if (getCmds().getString(desPath) != null && !getCmds().getString(desPath).isEmpty())
 			des = getCmds().getString(desPath);

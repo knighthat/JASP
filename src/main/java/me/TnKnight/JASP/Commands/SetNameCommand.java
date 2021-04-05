@@ -1,19 +1,13 @@
 package me.TnKnight.JASP.Commands;
 
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import me.TnKnight.JASP.JustAnotherSpawnerPickup;
 import me.TnKnight.JASP.PStorage;
 
 public class SetNameCommand extends SubCommand {
-
-	public SetNameCommand(JustAnotherSpawnerPickup plugin) {
-		super(plugin);
-	}
 
 	@Override
 	public String getName() {
@@ -21,7 +15,7 @@ public class SetNameCommand extends SubCommand {
 	}
 
 	@Override
-	public String getDiscription() {
+	public String getDescription() {
 		String des = "Name your spawner.";
 		if (getCmds().getString(desPath) != null && !getCmds().getString(desPath).isEmpty())
 			des = getCmds().getString(desPath);
@@ -38,7 +32,6 @@ public class SetNameCommand extends SubCommand {
 
 	@Override
 	public void onExecute(CommandSender sender, String[] args, boolean checkPermission) {
-		FileConfiguration cfg = plugin.cfg.getConfig();
 		if (!(sender instanceof Player))
 			return;
 		Player player = (Player) sender;
@@ -47,17 +40,19 @@ public class SetNameCommand extends SubCommand {
 			return;
 		}
 		if (args.length < 2) {
-			player.sendMessage(getSyntax());
+			player.spigot().sendMessage(getUsage().create());
 			return;
 		}
 		String input = new String();
 		for (int i = 1; i < args.length; i++)
 			input = input.concat(" " + args[i]).trim();
-		int max = cfg.isInt("name_length.max") ? cfg.getInt("name_length.max") : 15;
-		int min = cfg.isInt("name_length.min") ? cfg.getInt("name_length.min") : 3;
-		boolean space = cfg.isBoolean("name_length.space_counter") ? cfg.getBoolean("name_length.space_counter") : true;
-		boolean color = cfg.isBoolean("name_length.color_code_counter")
-				? cfg.getBoolean("name_length.color_code_counter")
+		int max = getConfig().isInt("name_length.max") ? getConfig().getInt("name_length.max") : 15;
+		int min = getConfig().isInt("name_length.min") ? getConfig().getInt("name_length.min") : 3;
+		boolean space = getConfig().isBoolean("name_length.space_counter")
+				? getConfig().getBoolean("name_length.space_counter")
+				: true;
+		boolean color = getConfig().isBoolean("name_length.color_code_counter")
+				? getConfig().getBoolean("name_length.color_code_counter")
 				: false;
 		int count = 0;
 		if (color)
@@ -71,15 +66,15 @@ public class SetNameCommand extends SubCommand {
 		}
 		if (count > max) {
 			String msg = "Your name is too long. Maximum is <max> &ccharacters.";
-			if (!cfg.getString("name_too_long").isEmpty())
-				msg = cfg.getString("name_too_long");
+			if (!getConfig().getString("name_too_long").isEmpty())
+				msg = getConfig().getString("name_too_long");
 			player.sendMessage(PStorage.setColor(PStorage.prefix + msg.replace("<max>", String.valueOf(max))));
 			return;
 		}
 		if (count < min) {
 			String msg = "Your name is too short. Minimum is <min> &ccharacters.";
-			if (!cfg.getString("name_too_short").isEmpty())
-				msg = cfg.getString("name_too_short");
+			if (!getConfig().getString("name_too_short").isEmpty())
+				msg = getConfig().getString("name_too_short");
 			player.sendMessage(PStorage.setColor(PStorage.prefix + msg.replace("<min>", String.valueOf(min))));
 			return;
 		}

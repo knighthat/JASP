@@ -10,6 +10,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 import me.TnKnight.JASP.JustAnotherSpawnerPickup;
 import me.TnKnight.JASP.PStorage;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 
 public class Manager implements CommandExecutor {
 
@@ -17,21 +18,17 @@ public class Manager implements CommandExecutor {
 
 	public Manager(JustAnotherSpawnerPickup plugin) {
 		this.plugin = plugin;
-		sCommands.add(new HelpCommand(plugin));
-		sCommands.add(new ReloadCommand(plugin));
-		sCommands.add(new SetCommand(plugin));
-		sCommands.add(new MobListCommand(plugin));
-		sCommands.add(new SetNameCommand(plugin));
-		sCommands.add(new LoreCommand(plugin));
-		sCommands.add(new ClearCommand(plugin));
-
+		sCommands.add(new HelpCommand());
+		sCommands.add(new ReloadCommand());
+		sCommands.add(new SetCommand());
+		sCommands.add(new MobListCommand());
+		sCommands.add(new SetNameCommand());
+		sCommands.add(new LoreCommand());
+		sCommands.add(new ClearCommand());
+		sCommands.add(new ModifyCommand());
 	}
 
-	private static ArrayList<SubCommand> sCommands = new ArrayList<>();
-
-	public static ArrayList<SubCommand> getSubCommands() {
-		return sCommands;
-	}
+	public static ArrayList<SubCommand> sCommands = new ArrayList<>();
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -59,30 +56,34 @@ public class Manager implements CommandExecutor {
 }
 
 abstract class SubCommand {
-	JustAnotherSpawnerPickup plugin;
 
-	public SubCommand(JustAnotherSpawnerPickup plugin) {
-		this.plugin = plugin;
-	}
+	JustAnotherSpawnerPickup plugin = JustAnotherSpawnerPickup.instance;
 
 	protected String desPath = "commands." + getName() + ".description";
 	protected String synPath = "commands." + getName() + ".usage";
 	protected String getPerm = "jasp.command." + getName();
 	protected String prefix = PStorage.setColor(PStorage.prefix);
 
+	protected FileConfiguration getConfig() {
+		return plugin.cfg.getConfig();
+	}
+
+	protected FileConfiguration getCmds() {
+		return plugin.cmds.getConfig();
+	}
+
+	protected ComponentBuilder getUsage() {
+		ComponentBuilder builder = new ComponentBuilder(prefix);
+		builder.append(Interactions.HnC(getConfig().getString("usage").replace("<command>", getSyntax()),
+				PStorage.removeColor(getSyntax())));
+		return builder;
+	}
+
 	public abstract String getName();
 
-	public abstract String getDiscription();
+	public abstract String getDescription();
 
 	public abstract String getSyntax();
 
 	public abstract void onExecute(CommandSender sender, String[] args, boolean checkPermission);
-
-	public FileConfiguration getCmds() {
-		return plugin.cmds.getConfig();
-	}
-
-	public FileConfiguration getConfig() {
-		return plugin.cfg.getConfig();
-	}
 }

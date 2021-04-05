@@ -25,6 +25,9 @@ holographic:
   distance: 1.0 #Distance between name and spawner (starts at the top of spawner)
   gap: 0.4 #Distance between name and first line of lore
   space: 0.2 #Distance between every line of lore
+  
+hoverable_text: "&bClick here to get command: &d&l<command>"
+
 
 #############      MESSAGES      ############# 
 reload: "&aReloaded successfully!"
@@ -35,7 +38,10 @@ help_footer: "&m&l=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
 require_spawner: "&cYou are not holding a spawner!"
 name_too_long: "&cYour name is too long. Maximum is &4&l<max> &ccharacters."
 name_too_short: "&cYour name is too short. Minimum is &4&l<min> &ccharacters."
-not_a_number: "&c<input> is not a number. Try another one!"
-below_zero: "&c<input> is not allowed to be below zero!"
-out_of_bound: "&c<input> is over the roof. Please make it smaller!"
+not_a_number: "&4&l<input> &cis not a number. Try another one!"
+below_zero: "&4&l<input> &cis not allowed to be below zero!"
+out_of_bound: "&4&l<input> &cis over the roof. Please make it smaller!"
 clear_message: "&a&lDone!"
+min_delay_too_high: "&4&l<input> &cis higher than &4&l<max_delay> &c- max delay!" 
+max_delay_too_low: "&4&l<input> &cis low than &4&l<min_delay> &c- min delay!" 
+usage: "&cUsage: &4&l<command>"

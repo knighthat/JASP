@@ -6,14 +6,13 @@
 #     permission: jasp.command.help
 #
 #Keys:
-#  - "help:" The command you want to modify
-#  - "usage:" How to execute the command
-#  - "description:" What this command does
-#  - "permission:" Requirement in order to perform command (this line won't show up if "show_permission:" is "false")
+#  - "help" The command you want to modify
+#  - "usag:" How to execute the command
+#  - "description" What this command does
+#  - "permission" Requirement in order to perform command (this line won't show up if "show_permission:" is "false")
 #
 #P/S: Default description will be applied if it is left blank or non-exist.
 #P/S2: Feel free to add color to make it look less messy.
-
 
 show_permission: true
 commands:
@@ -45,3 +44,7 @@ commands:
     usage: "/jasp clear <radius>"
     description: "Clear plugin's floating name and lore"
     permission: jasp.command.clear
+  modify:
+    usage: "/jasp modify [mindelay/maxdelay/playerrange/count/range] <input>"
+    description: "Modify spawner's statistics."
+    permission: jasp.command.modify.[mindelay/maxdelay/playerrange/count/range]

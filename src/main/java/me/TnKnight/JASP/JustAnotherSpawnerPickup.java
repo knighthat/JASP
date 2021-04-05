@@ -3,6 +3,7 @@ package me.TnKnight.JASP;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import me.TnKnight.JASP.Commands.Interactions;
 import me.TnKnight.JASP.Commands.Manager;
 import me.TnKnight.JASP.Files.CommandsYML;
 import me.TnKnight.JASP.Files.ConfigYML;
@@ -19,7 +20,8 @@ public class JustAnotherSpawnerPickup extends JavaPlugin {
 		cfg.onStart();
 		cmds.onStart();
 		getCommand("justanotherspawnerpickup").setExecutor(new Manager(this));
-		Bukkit.getPluginManager().registerEvents(new Listeners(this), this);
+		getCommand("justanotherspawnerpickup").setTabCompleter(new Interactions(this));
+		getServer().getPluginManager().registerEvents(new Listeners(this), this);
 
 		// Finish Loading
 		String started = PStorage.setColor(PStorage.prefix + " &aPlugin Started &a&lSuccessfully&a!");
