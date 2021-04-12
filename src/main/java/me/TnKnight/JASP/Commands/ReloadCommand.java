@@ -1,10 +1,6 @@
 package me.TnKnight.JASP.Commands;
 
-import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import me.TnKnight.JASP.PStorage;
 
 public class ReloadCommand extends SubCommand {
 
@@ -15,34 +11,19 @@ public class ReloadCommand extends SubCommand {
 
 	@Override
 	public String getDescription() {
-		String des = "Reload plugin.";
-		if (getCmds().getString(desPath) != null && !getCmds().getString(desPath).isEmpty())
-			des = getCmds().getString(desPath);
-		return PStorage.setColor(des);
+		return "Reload plugin.";
 	}
 
 	@Override
 	public String getSyntax() {
-		String syntax = "/jasp reload";
-		if (getCmds().getString(synPath) != null && !getCmds().getString(synPath).isEmpty())
-			syntax = getCmds().getString(synPath);
-		return PStorage.setColor(syntax);
+		return "/jasp reload";
 	}
 
 	@Override
-	public void onExecute(CommandSender sender, String[] args, boolean checkPermission) {
-		if (checkPermission && !sender.hasPermission("jasp.admin.reload")) {
-			sender.sendMessage(PStorage.noPerm());
-			return;
-		}
+	public void onExecute(Player player, String[] args) {
 		plugin.cfg.reload();
 		plugin.cmds.reload();
-		String msg = "&aReloaded successfully!";
-		if (getConfig().getString("reload") != null && !getConfig().getString("reload").isEmpty())
-			msg = getConfig().getString("reload");
-		sender.sendMessage(PStorage.setColor(PStorage.prefix + msg));
-		if (sender instanceof Player)
-			Bukkit.getLogger().warning(PStorage.setColor(PStorage.prefix + msg));
+		player.sendMessage(super.getStringFromConfig("reload", "Reloaded successfully!", true));
 	}
 
 }

@@ -7,17 +7,15 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 
 import me.TnKnight.JASP.JustAnotherSpawnerPickup;
 import me.TnKnight.JASP.PStorage;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 
-public class Manager implements CommandExecutor {
+public class Manager extends PStorage implements CommandExecutor {
 
-	JustAnotherSpawnerPickup plugin;
-
-	public Manager(JustAnotherSpawnerPickup plugin) {
-		this.plugin = plugin;
+	public Manager() {
 		sCommands.add(new HelpCommand());
 		sCommands.add(new ReloadCommand());
 		sCommands.add(new SetCommand());
@@ -32,50 +30,56 @@ public class Manager implements CommandExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-
+		if (!(sender instanceof Player))
+			return true;
+		Player player = (Player) sender;
 		boolean checkPermission = !sender.hasPermission("jasp.*");
 		if (args.length == 0) {
 			if (!checkPermission || (checkPermission && sender.hasPermission("jasp.command.help")))
-				get("help").onExecute(sender, args, checkPermission);
+				get(player, checkPermission, "help").onExecute((Player) sender, args);
 			return true;
-		} else
-			get(args[0]).onExecute(sender, args, checkPermission);
+		} else if (get(player, checkPermission, args[0]) != null)
+			get(player, checkPermission, args[0]).onExecute((Player) sender, args);
 		return true;
 	}
 
-	public static SubCommand get(String name) {
+	public static SubCommand get(Player player, boolean checkPerm, String name) {
+		FileConfiguration cfg = JustAnotherSpawnerPickup.instance.cfg.getConfig();
+		final String perm = name.equalsIgnoreCase("reload") ? "jasp.admin.reload" : "jasp.command." + name;
 		Iterator<SubCommand> sCommands = Manager.sCommands.iterator();
-
 		while (sCommands.hasNext()) {
 			SubCommand sub = sCommands.next();
-			if (sub.getName().equalsIgnoreCase(name))
+			if (sub.getName().equalsIgnoreCase(name)) {
+				if (checkPerm && !player.hasPermission(perm)) {
+					String msg = "You don't have permission [<perm>] to execute that command!";
+					if (cfg.getString("no_permission") != null && !cfg.getString("no_permission").isEmpty())
+						msg = cfg.getString("no_permission");
+					player.sendMessage(setColor(PStorage.prefix + msg.replace("<perm>", perm)));
+					return null;
+				}
 				return sub;
+			}
 		}
-		return get("help");
+		return get(player, true, "help");
 	}
 }
 
-abstract class SubCommand {
+abstract class SubCommand extends PStorage {
 
-	JustAnotherSpawnerPickup plugin = JustAnotherSpawnerPickup.instance;
-
+	protected JustAnotherSpawnerPickup plugin = JustAnotherSpawnerPickup.instance;
 	protected String desPath = "commands." + getName() + ".description";
 	protected String synPath = "commands." + getName() + ".usage";
 	protected String getPerm = "jasp.command." + getName();
-	protected String prefix = PStorage.setColor(PStorage.prefix);
 
 	protected FileConfiguration getConfig() {
 		return plugin.cfg.getConfig();
 	}
 
-	protected FileConfiguration getCmds() {
-		return plugin.cmds.getConfig();
-	}
-
 	protected ComponentBuilder getUsage() {
 		ComponentBuilder builder = new ComponentBuilder(prefix);
-		builder.append(Interactions.HnC(getConfig().getString("usage").replace("<command>", getSyntax()),
-				PStorage.removeColor(getSyntax())));
+		String syntax = super.removeColor(super.getStringFromCommands(synPath, getSyntax()));
+		builder.append(
+				Interactions.HnC(plugin.cfg.getConfig().getString("usage").replace("<command>", syntax), syntax));
 		return builder;
 	}
 
@@ -85,5 +89,5 @@ abstract class SubCommand {
 
 	public abstract String getSyntax();
 
-	public abstract void onExecute(CommandSender sender, String[] args, boolean checkPermission);
+	public abstract void onExecute(Player player, String[] args);
 }

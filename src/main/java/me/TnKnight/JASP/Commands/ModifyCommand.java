@@ -6,12 +6,9 @@ import java.util.List;
 
 import org.bukkit.Material;
 import org.bukkit.block.CreatureSpawner;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
-
-import me.TnKnight.JASP.PStorage;
 
 public class ModifyCommand extends SubCommand {
 
@@ -22,42 +19,26 @@ public class ModifyCommand extends SubCommand {
 
 	@Override
 	public String getDescription() {
-		String des = "Modify spawner's statistics.";
-		if (getCmds().getString(desPath) != null && !getCmds().getString(desPath).isEmpty())
-			des = getCmds().getString(desPath);
-		return PStorage.setColor(des);
+		return "Modify spawner's statistics.";
 	}
 
 	@Override
 	public String getSyntax() {
-		String syntax = "/jasp modify [mindelay/maxdelay/playerrange/count/range] <input>";
-		if (getCmds().getString(synPath) != null && !getCmds().getString(synPath).isEmpty())
-			syntax = getCmds().getString(synPath);
-		return PStorage.setColor(syntax);
+		return "/jasp modify [mindelay/maxdelay/playerrange/count/range] <input>";
 	}
 
 	@Override
-	public void onExecute(CommandSender sender, String[] args, boolean checkPermission) {
-		if (!(sender instanceof Player))
-			return;
-		Player player = (Player) sender;
+	public void onExecute(Player player, String[] args) {
 		if (args.length < 3
 				|| !Arrays.asList("mindelay", "maxdelay", "playerrange", "coung", "range").contains(args[1])) {
 			player.spigot().sendMessage(getUsage().create());
 			return;
 		}
-		if (!player.hasPermission(getPerm + "." + args[1].toLowerCase())) {
-			player.sendMessage(PStorage.noPerm());
-			return;
-		}
 		if (!player.getInventory().getItemInMainHand().getType().equals(Material.SPAWNER)) {
-			String msg = "You are not holding a spawner!";
-			if (!getConfig().getString("require_spawner").isEmpty())
-				msg = getConfig().getString("require_spawner");
-			player.sendMessage(PStorage.setColor(msg));
+			player.sendMessage(super.getStringFromConfig("require_spawner", "You are not holding a spawner!", true));
 			return;
 		}
-		if (!PStorage.isInt(player, args[2]))
+		if (!super.isInt(player, args[2]))
 			return;
 		int time = Integer.parseInt(args[2]);
 		ItemStack spawner = new ItemStack(player.getInventory().getItemInMainHand());
@@ -67,12 +48,11 @@ public class ModifyCommand extends SubCommand {
 		switch (args[1].toLowerCase()) {
 		case "mindelay":
 			if (time > sType.getMaxSpawnDelay()) {
-				String msg = "<input> is higher than <max_delay> - max delay!";
-				if (!getConfig().getString("min_delay_too_high").isEmpty())
-					msg = getConfig().getString("min_delay_too_high");
+				String msg = super.getStringFromConfig("min_delay_too_high",
+						"<input> is higher than <max_delay> - max delay!", true);
 				msg = msg.replace("<min>", String.valueOf(sType.getMinSpawnDelay()).replace("<max>",
 						String.valueOf(sType.getMaxSpawnDelay())));
-				player.sendMessage(PStorage.setColor(prefix + msg));
+				player.sendMessage(msg);
 				return;
 			}
 			sType.setMinSpawnDelay(time);
@@ -80,12 +60,11 @@ public class ModifyCommand extends SubCommand {
 
 		case "maxdelay":
 			if (time < sType.getMinSpawnDelay()) {
-				String msg = "<input> is low than <min_delay> - min delay!";
-				if (!getConfig().getString("max_delay_too_low").isEmpty())
-					msg = getConfig().getString("max_delay_too_low");
+				String msg = super.getStringFromConfig("max_delay_too_low",
+						"<input> is low than <min_delay> - min delay!", true);
 				msg = msg.replace("<min>", String.valueOf(sType.getMinSpawnDelay()).replace("<max>",
 						String.valueOf(sType.getMaxSpawnDelay())));
-				player.sendMessage(PStorage.setColor(prefix + msg));
+				player.sendMessage(super.setColor(prefix + msg));
 				return;
 			}
 			sType.setMaxSpawnDelay(time);
@@ -102,12 +81,13 @@ public class ModifyCommand extends SubCommand {
 		}
 		sMeta.setBlockState(sType);
 		List<String> lore = new ArrayList<>();
-		for (int i = 0; i < sMeta.getLore().size() - getConfig().getStringList("spawner_description.lore").size(); i++)
-			lore.add(PStorage.setColor(sMeta.getLore().get(i)));
+		for (int i = 0; i < sMeta.getLore().size()
+				- plugin.cfg.getConfig().getStringList("spawner_description.lore").size(); i++)
+			lore.add(super.setColor(sMeta.getLore().get(i)));
 		sMeta.setLore(lore);
 		spawner.setItemMeta(sMeta);
-		if (getConfig().getBoolean("spawner_description.enable"))
-			PStorage.replaceLoreFromItem(spawner);
+		if (plugin.cfg.getConfig().getBoolean("spawner_description.enable"))
+			super.replaceLoreFromItem(spawner);
 		player.getInventory().getItemInMainHand().setAmount(player.getInventory().getItemInMainHand().getAmount() - 1);
 		player.getInventory().addItem(spawner);
 		player.updateInventory();

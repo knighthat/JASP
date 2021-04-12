@@ -3,7 +3,6 @@ package me.TnKnight.JASP.Commands;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -12,7 +11,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 import me.TnKnight.JASP.JustAnotherSpawnerPickup;
 import me.TnKnight.JASP.MobList;
-import me.TnKnight.JASP.PStorage;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ClickEvent.Action;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -44,8 +43,7 @@ public class Interactions implements TabCompleter {
 		if (args.length == 2 && contains) {
 			switch (args[0].toLowerCase()) {
 			case "set":
-				for (MobList mob : MobList.getAvailables())
-					subs.add(mob.toString().toLowerCase());
+				MobList.getValues().forEach(mob -> subs.add(mob.toString().toLowerCase()));
 				break;
 			case "lore":
 				for (String s : new String[] { "add", "set", "remove", "reset" })
@@ -69,8 +67,8 @@ public class Interactions implements TabCompleter {
 		}
 		List<String> args2 = new ArrayList<>(
 				Arrays.asList("add", "set", "remove", "mindelay", "maxdelay", "playerrange", "range", "count"));
-		if (args.length == 3 && args[0].equalsIgnoreCase("set") && MobList.getAvailables().stream()
-				.map(MobList::toString).collect(Collectors.toList()).contains(args[1].toUpperCase())) {
+		if (args.length == 3 && args[0].equalsIgnoreCase("set")
+				&& MobList.getValuesToString().contains(args[1].toUpperCase())) {
 			result.add("<amount>");
 			amount.forEach(amt -> subs.add(amt));
 			subs.add("all");
@@ -106,14 +104,18 @@ public class Interactions implements TabCompleter {
 		return result;
 	}
 
+	private static String setColor(String input) {
+		return ChatColor.translateAlternateColorCodes('&', input);
+	}
+
 	public static TextComponent HnC(String display, String click) {
 		FileConfiguration cfg = JustAnotherSpawnerPickup.instance.cfg.getConfig();
 		String hoverDisplay = "Click here to get command: <command>";
 		if (!cfg.getString("hoverable_text").isEmpty())
 			hoverDisplay = cfg.getString("hoverable_text");
-		TextComponent def = new TextComponent(PStorage.setColor(display));
+		TextComponent def = new TextComponent(setColor(display));
 		def.setClickEvent(new ClickEvent(Action.SUGGEST_COMMAND, click));
-		ComponentBuilder hoverText = new ComponentBuilder(PStorage.setColor(hoverDisplay.replace("<command>", click)));
+		ComponentBuilder hoverText = new ComponentBuilder(setColor(hoverDisplay.replace("<command>", click)));
 		def.setHoverEvent(new HoverEvent(net.md_5.bungee.api.chat.HoverEvent.Action.SHOW_TEXT, hoverText.create()));
 		return def;
 	}

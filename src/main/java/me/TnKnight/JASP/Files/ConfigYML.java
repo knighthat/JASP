@@ -4,9 +4,7 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -21,9 +19,13 @@ public class ConfigYML {
 		this.plugin = plugin;
 	}
 
-	private File file;
-	private FileConfiguration cfg;
+	// Create variables
+	private File file = null;
+	private FileConfiguration config = null;
 
+	/**
+	 * Starts up by checking if config.yml is created, then load into memory
+	 */
 	public void onStart() {
 		if (file == null)
 			file = new File(plugin.getDataFolder(), "config.yml");
@@ -32,32 +34,52 @@ public class ConfigYML {
 		setConfig();
 	}
 
+	/**
+	 * 
+	 * @return if config.yml is loaded
+	 */
 	public void reload() {
-		if (file == null || cfg == null)
+		if (file == null || config == null)
 			onStart();
 		setConfig();
 	}
 
+	/**
+	 * Gets a FileConfiguration for this plugin, read through "config.yml" If there
+	 * is a default config.yml embedded in this plugin, it will be provided as a
+	 * default for this Configuration.
+	 * 
+	 * @returns Plugin's config.yml configuration
+	 */
 	public FileConfiguration getConfig() {
-		if (cfg == null)
+		if (config == null)
 			reload();
-		return cfg;
+		return config;
 	}
 
 	private void setConfig() {
-		cfg = YamlConfiguration.loadConfiguration(file);
+		config = YamlConfiguration.loadConfiguration(file);
+		if (getConfig().getString("version") == null || getConfig().getString("version").isEmpty()
+				|| !getConfig().getString("version").equalsIgnoreCase(plugin.getDescription().getVersion())) {
+			for (File f : plugin.getDataFolder().listFiles())
+				if (f.getName().equalsIgnoreCase("config.yml.old"))
+					f.delete();
+			file.renameTo(new File(plugin.getDataFolder(), "config.yml.old"));
+			file.delete();
+			file = new File(plugin.getDataFolder(), "config.yml");
+			plugin.saveResource("config.yml", false);
+			plugin.sendMessage("&4Unsupported config version, creating new file...");
+			reload();
+		}
 		try {
 			Reader defaultCfg = new InputStreamReader(plugin.getResource("config.yml"), "UTF8");
 			if (defaultCfg != null)
-				cfg.setDefaults(YamlConfiguration.loadConfiguration(defaultCfg));
+				config.setDefaults(YamlConfiguration.loadConfiguration(defaultCfg));
 			if (!getConfig().getString("prefix").isEmpty())
 				PStorage.prefix = getConfig().getString("prefix") + "&r ";
 		} catch (UnsupportedEncodingException e1) {
-			ArrayList<String> msges = new ArrayList<>();
-			msges.add("&cCould not load config.yml, please move or delete file");
-			msges.add("&cand let plugin create a new file for you!");
-			for (String msg : msges)
-				Bukkit.getLogger().severe(PStorage.setColor(PStorage.prefix + msg));
+			plugin.sendMessage("&cCould not load config.yml, please move or delete file");
+			plugin.sendMessage("&cand let plugin create a new file for you!");
 		}
 	}
 }

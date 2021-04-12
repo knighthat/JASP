@@ -5,14 +5,12 @@ import java.util.List;
 
 import org.bukkit.Material;
 import org.bukkit.block.CreatureSpawner;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 
 import me.TnKnight.JASP.MobList;
-import me.TnKnight.JASP.PStorage;
 
 public class SetCommand extends SubCommand {
 
@@ -23,72 +21,51 @@ public class SetCommand extends SubCommand {
 
 	@Override
 	public String getDescription() {
-		String des = "Set a specific mod to holding spawner.";
-		if (getCmds().getString(desPath) != null && !getCmds().getString(desPath).isEmpty())
-			des = getCmds().getString(desPath);
-		return PStorage.setColor(des);
+		return "Set a specific mod to holding spawner.";
 	}
 
 	@Override
 	public String getSyntax() {
-		String syntax = "&6/jasp set <mob name>";
-		if (getCmds().getString(synPath) != null && !getCmds().getString(synPath).isEmpty())
-			syntax = getCmds().getString(synPath);
-		return PStorage.setColor(syntax);
+		return "/jasp set <mob name>";
 	}
 
 	@Override
-	public void onExecute(CommandSender sender, String[] args, boolean checkPermission) {
-		if (!(sender instanceof Player))
-			return;
-		Player player = (Player) sender;
-		if (checkPermission && !player.hasPermission(getPerm)) {
-			player.sendMessage(PStorage.noPerm());
-			return;
-		}
+	public void onExecute(Player player, String[] args) {
 		if (args.length < 2) {
 			player.spigot().sendMessage(getUsage().create());
 			return;
 		}
 		if (!player.getInventory().getItemInMainHand().getType().equals(Material.SPAWNER)) {
-			String msg = "You are not holding a spawner!";
-			if (!getConfig().getString("require_spawner").isEmpty())
-				msg = getConfig().getString("require_spawner");
-			player.sendMessage(PStorage.setColor(msg));
+			player.sendMessage(super.getStringFromConfig("require_spawner", "You are not holding a spawner!", true));
 			return;
 		}
-		for (int i = 0; i < MobList.getAvailables().size(); i++)
-			if (MobList.getAvailables().get(i).toString().equalsIgnoreCase(args[1])) {
-				ItemStack spawner = new ItemStack(player.getInventory().getItemInMainHand());
-				BlockStateMeta sMeta = (BlockStateMeta) spawner.getItemMeta();
-				CreatureSpawner sType = (CreatureSpawner) sMeta.getBlockState();
-				sType.setSpawnedType(EntityType.valueOf(MobList.getAvailables().get(i).toString()));
-				sMeta.setBlockState(sType);
-				List<String> lore = new ArrayList<>();
-				for (int s = 0; s < sMeta.getLore().size()
-						- getConfig().getStringList("spawner_description.lore").size(); s++)
-					lore.add(PStorage.setColor(sMeta.getLore().get(s)));
-				sMeta.setLore(lore);
-				spawner.setItemMeta(sMeta);
-				if (getConfig().getBoolean("spawner_description.enable"))
-					PStorage.replaceLoreFromItem(spawner);
-				if (player.getInventory().getItemInMainHand().getAmount() > 1) {
-					int amount = 1;
-					if (args.length >= 3)
-						if (args[2].equalsIgnoreCase("all")) {
-							amount = player.getInventory().getItemInMainHand().getAmount();
-						} else if (PStorage.isInt(player, args[2]))
-							amount = Integer.parseInt(args[2]);
-					spawner.setAmount(amount);
-					player.getInventory().getItemInMainHand()
-							.setAmount(player.getInventory().getItemInMainHand().getAmount() - amount);
-					player.getInventory().addItem(spawner);
-				} else
-					player.getInventory().setItemInMainHand(spawner);
-				player.updateInventory();
-				return;
-			}
-		Manager.get("moblist").onExecute(sender, new String[] { "moblist" }, true);
+		if (!MobList.getValuesToString().contains(args[1].toUpperCase())) {
+			Manager.get(player, !player.hasPermission("jasp.*"), "moblist").onExecute(player,
+					new String[] { "moblist" });
+			return;
+		}
+		ItemStack spawner = new ItemStack(player.getInventory().getItemInMainHand());
+		BlockStateMeta sMeta = (BlockStateMeta) spawner.getItemMeta();
+		CreatureSpawner sType = (CreatureSpawner) sMeta.getBlockState();
+		sType.setSpawnedType(EntityType.valueOf(args[1].toUpperCase()));
+		sMeta.setBlockState(sType);
+		List<String> lore = new ArrayList<>();
+		for (int i = 0; i < sMeta.getLore().size()
+				- plugin.cfg.getConfig().getStringList("spawner_description.lore").size(); i++)
+			lore.add(super.setColor(sMeta.getLore().get(i)));
+		sMeta.setLore(lore);
+		spawner.setItemMeta(sMeta);
+		if (plugin.cfg.getConfig().getBoolean("spawner_description.enable"))
+			super.replaceLoreFromItem(spawner);
+		int amount = args.length < 3 ? 1
+				: (args[2].equalsIgnoreCase("all") ? spawner.getAmount()
+						: (super.isInt(player, args[2]) ? Integer.parseInt(args[2]) : 1));
+		player.getInventory().getItemInMainHand().setAmount(spawner.getAmount() - amount);
+		spawner.setAmount(amount);
+		player.getInventory().addItem(spawner);
+		player.updateInventory();
+		return;
+
 	}
 
 }

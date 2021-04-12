@@ -1,6 +1,7 @@
 package me.TnKnight.JASP;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,15 +16,17 @@ public enum MobList {
 	ZOMBIE_VILLAGER, CAT, FOX, PANDA, PILLAGER, RAVAGER, TRADER_LLAMA, WANDERING_TRADER, BEE, HOGLIN, PIGLIN, STRIDER,
 	ZOGLIN, ZOMBIFIED_PIGLIN;
 
-	public static List<MobList> getAvailables() {
-		ArrayList<MobList> list = new ArrayList<>();
-		ArrayList<String> eType = new ArrayList<>();
-		for (EntityType e : EntityType.values())
-			eType.add(e.toString());
-		for (MobList mob : MobList.values())
-			if (eType.contains(mob.toString()))
+	public static List<MobList> getValues() {
+		List<MobList> list = new ArrayList<>();
+		List<String> mobs = Arrays.asList(EntityType.values()).stream().map(EntityType::toString)
+				.collect(Collectors.toList());
+		for (MobList mob : values())
+			if (mobs.contains(mob.toString()))
 				list.add(mob);
 		return list.stream().sorted().collect(Collectors.toList());
 	}
 
+	public static List<String> getValuesToString() {
+		return getValues().stream().map(MobList::toString).collect(Collectors.toList());
+	}
 }

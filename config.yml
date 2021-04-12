@@ -1,3 +1,7 @@
+#########  Please don't touch this section  #########
+version: 0.1.1
+#####################################################
+
 prefix: "&f&k[&1J&aA&cS&5P&f&k]"
 
 spawner_description:
@@ -31,9 +35,10 @@ hoverable_text: "&bClick here to get command: &d&l<command>"
 
 #############      MESSAGES      ############# 
 reload: "&aReloaded successfully!"
-no_permission: "&cYou don't have permisson to execute that command!"
+#<perm> will only be replaced if "show_permission" in commands.yml is true
+no_permission: "&cYou don't have permisson [<perm>] to execute that command!"
 #Header and footer of the help list, will not show if blank
-help_header: "<prefix> &aList of all available commands:"
+help_header: "&aList of all available commands:"
 help_footer: "&m&l=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
 require_spawner: "&cYou are not holding a spawner!"
 name_too_long: "&cYour name is too long. Maximum is &4&l<max> &ccharacters."

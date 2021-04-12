@@ -14,6 +14,9 @@
 #P/S: Default description will be applied if it is left blank or non-exist.
 #P/S2: Feel free to add color to make it look less messy.
 
+#Here is what will be showed in help: <command> <description> <permission>
+#Permission only be showed if "show_permission" is true
+
 show_permission: true
 commands:
   help:

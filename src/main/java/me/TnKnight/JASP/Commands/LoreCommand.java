@@ -5,12 +5,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.Material;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-
-import me.TnKnight.JASP.PStorage;
 
 public class LoreCommand extends SubCommand {
 
@@ -21,25 +18,16 @@ public class LoreCommand extends SubCommand {
 
 	@Override
 	public String getDescription() {
-		String des = "add/set/remove/reset lore of holding spawner.";
-		if (getCmds().getString(desPath) != null && !getCmds().getString(desPath).isEmpty())
-			des = getCmds().getString(desPath);
-		return PStorage.setColor(des);
+		return "add/set/remove/reset lore of holding spawner.";
 	}
 
 	@Override
 	public String getSyntax() {
-		String syntax = "/jasp lore [add/set/remove/reset] [line (if set/remove)] <lore>";
-		if (getCmds().getString(synPath) != null && !getCmds().getString(synPath).isEmpty())
-			syntax = getCmds().getString(synPath);
-		return PStorage.setColor(syntax);
+		return "/jasp lore [add/set/remove/reset] [line (if set/remove)] <lore>";
 	}
 
 	@Override
-	public void onExecute(CommandSender sender, String[] args, boolean checkPermission) {
-		if (!(sender instanceof Player))
-			return;
-		Player player = (Player) sender;
+	public void onExecute(Player player, String[] args) {
 		if (args.length < 2 || !Arrays.asList("add", "set", "remove", "reset").contains(args[1])) {
 			player.spigot().sendMessage(getUsage().create());
 			return;
@@ -50,17 +38,9 @@ public class LoreCommand extends SubCommand {
 			player.spigot().sendMessage(getUsage().create());
 			return;
 		}
-		final boolean enabled = getConfig().getBoolean("spawner_description.enable");
-
-		if (!player.hasPermission(getPerm + "." + args[1].toLowerCase())) {
-			player.sendMessage(PStorage.noPerm());
-			return;
-		}
+		final boolean enabled = plugin.cfg.getConfig().getBoolean("spawner_description.enable");
 		if (!player.getInventory().getItemInMainHand().getType().equals(Material.SPAWNER)) {
-			String msg = "You are not holding a spawner!";
-			if (!getConfig().getString("require_spawner").isEmpty())
-				msg = getConfig().getString("require_spawner");
-			player.sendMessage(PStorage.setColor(msg));
+			player.sendMessage(super.getStringFromConfig("require_spawner", "You are not holding a spawner!", true));
 			return;
 		}
 		int amount = 1;
@@ -68,9 +48,9 @@ public class LoreCommand extends SubCommand {
 		ItemMeta sMeta = spawner.getItemMeta();
 		List<String> sLore = new ArrayList<>();
 		if (enabled && sMeta.hasLore()
-				&& sMeta.getLore().size() >= getConfig().getStringList("spawner_description.lore").size())
+				&& sMeta.getLore().size() >= plugin.cfg.getConfig().getStringList("spawner_description.lore").size())
 			for (int i = 0; i < sMeta.getLore().size()
-					- getConfig().getStringList("spawner_description.lore").size(); i++)
+					- plugin.cfg.getConfig().getStringList("spawner_description.lore").size(); i++)
 				sLore.add(sMeta.getLore().get(i));
 		String str = new String();
 		for (int i = getArgs; i < args.length; i++)
@@ -78,7 +58,7 @@ public class LoreCommand extends SubCommand {
 		switch (args[1].toLowerCase()) {
 
 		case "add":
-			sLore.add(PStorage.setColor(str));
+			sLore.add(super.setColor(str));
 			break;
 
 		case "set":
@@ -88,14 +68,13 @@ public class LoreCommand extends SubCommand {
 				return;
 			line = Integer.parseInt(args[getArgs - 1]) - 1;
 			if (line >= sLore.size()) {
-				String msg = "<line> is over the roof. Please make it smaller!";
-				if (!getConfig().getString("out_of_bound").isEmpty())
-					msg = getConfig().getString("out_of_bound");
-				player.sendMessage(PStorage.setColor(PStorage.prefix + msg.replace("<line>", args[2])));
+				String msg = super.getStringFromConfig("out_of_bound",
+						"<line> is over the roof. Please make it smaller!", true);
+				player.sendMessage(msg.replace("<line>", args[2]));
 				return;
 			}
 			if (args[1].equalsIgnoreCase("set")) {
-				sLore.set(line, PStorage.setColor(str));
+				sLore.set(line, super.setColor(str));
 			} else
 				sLore.remove(line);
 			break;
@@ -113,7 +92,7 @@ public class LoreCommand extends SubCommand {
 		sMeta.setLore(sLore.isEmpty() ? null : sLore);
 		spawner.setItemMeta(sMeta);
 		if (enabled)
-			PStorage.replaceLoreFromItem(spawner);
+			super.replaceLoreFromItem(spawner);
 		spawner.setAmount(amount);
 		if (player.getInventory().getItemInMainHand().getAmount() > 1) {
 			player.getInventory().getItemInMainHand()
@@ -126,13 +105,12 @@ public class LoreCommand extends SubCommand {
 	}
 
 	private boolean numberChecking(Player player, String input) {
-		if (!PStorage.isInt(player, input))
+		if (!super.isInt(player, input))
 			return false;
 		if (Integer.parseInt(input) > player.getInventory().getItemInMainHand().getAmount()) {
-			String msg = "<line> is over the roof. Please make it smaller!";
-			if (!getConfig().getString("out_of_bound").isEmpty())
-				msg = getConfig().getString("out_of_bound");
-			player.sendMessage(PStorage.setColor(prefix + msg.replace("<input>", input)));
+			String msg = super.getStringFromConfig("out_of_bound", "<line> is over the roof. Please make it smaller!",
+					true);
+			player.sendMessage(msg.replace("<line>", input));
 			return false;
 		}
 		return true;
