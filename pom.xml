@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>me.TnKnight.JASP</groupId>
   <artifactId>JustAnotherSpawnerPickup</artifactId>
-  <version>0.1.0</version>
+  <version>0.1.1</version>
   <name>Just Another Spawner Pickup Plugin (JASP)</name>
   <description>Pickup and modify spawner as you want</description>
   <build>

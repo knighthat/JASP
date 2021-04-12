@@ -6,6 +6,5 @@ author: TnKnight
 
 commands:
   justanotherspawnerpickup:
-    permisson: "jasp.admin.reload"
     aliases:
       - jasp
