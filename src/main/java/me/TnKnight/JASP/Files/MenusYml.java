@@ -9,13 +9,14 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import me.TnKnight.JASP.JustAnotherSpawnerPickup;
+import me.TnKnight.JASP.Menu;
 
-public class CommandsYML
+public class MenusYml
 {
 
 	JustAnotherSpawnerPickup plugin;
 
-	public CommandsYML(JustAnotherSpawnerPickup plugin) {
+	public MenusYml(JustAnotherSpawnerPickup plugin) {
 		this.plugin = plugin;
 	}
 
@@ -28,9 +29,9 @@ public class CommandsYML
 	 */
 	public void startup() {
 		if ( file == null )
-			file = new File(plugin.getDataFolder(), "commands.yml");
+			file = new File(plugin.getDataFolder(), "menus.yml");
 		if ( !file.exists() )
-			plugin.saveResource("commands.yml", false);
+			plugin.saveResource("menus.yml", false);
 		setCommands();
 	}
 
@@ -60,12 +61,13 @@ public class CommandsYML
 	private void setCommands() {
 		cfg = YamlConfiguration.loadConfiguration(file);
 		try {
-			Reader defaultCfg = new InputStreamReader(plugin.getResource("commands.yml"), "UTF8");
+			Reader defaultCfg = new InputStreamReader(plugin.getResource("menus.yml"), "UTF8");
 			if ( defaultCfg != null )
 				cfg.setDefaults(YamlConfiguration.loadConfiguration(defaultCfg));
 		} catch ( UnsupportedEncodingException e ) {
-			plugin.sendMessage("&cCould not load commands.yml, please move or delete file");
+			plugin.sendMessage("&cCould not load menus.yml, please move or delete file");
 			plugin.sendMessage("&cand let plugin create a new file for you!");
 		}
+		Menu.updateMenu();
 	}
 }

@@ -5,7 +5,8 @@ import org.bukkit.entity.Player;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
 
-public class HelpCommand extends SubCommand {
+public class HelpCommand extends SubCommand
+{
 
 	@Override
 	public String getName() {
@@ -23,11 +24,11 @@ public class HelpCommand extends SubCommand {
 	}
 
 	@Override
-	public void onExecute(Player sender, String[] args) {
+	public void onExecute( Player sender, String[] args ) {
 		String header = super.getStringFromConfig("help_header", "", true);
 		String footer = super.getStringFromConfig("help_footer", "", false);
 		ComponentBuilder builder = new ComponentBuilder(header);
-		for (SubCommand sub : Manager.sCommands) {
+		for ( SubCommand sub : CommandsManager.sCommands ) {
 			final String syntax = super.getStringFromCommands(sub.synPath, sub.getSyntax());
 			final String description = super.getStringFromCommands(sub.desPath, sub.getDescription());
 			final String permission = super.getStringFromCommands("commands." + sub.getName() + ".permission",

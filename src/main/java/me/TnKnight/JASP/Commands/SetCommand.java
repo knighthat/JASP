@@ -12,7 +12,8 @@ import org.bukkit.inventory.meta.BlockStateMeta;
 
 import me.TnKnight.JASP.MobList;
 
-public class SetCommand extends SubCommand {
+public class SetCommand extends SubCommand
+{
 
 	@Override
 	public String getName() {
@@ -30,17 +31,15 @@ public class SetCommand extends SubCommand {
 	}
 
 	@Override
-	public void onExecute(Player player, String[] args) {
-		if (args.length < 2) {
-			player.spigot().sendMessage(getUsage().create());
+	public void onExecute( Player player, String[] args ) {
+		if ( argsChecker(player, args, 2, null, 0) )
 			return;
-		}
-		if (!player.getInventory().getItemInMainHand().getType().equals(Material.SPAWNER)) {
+		if ( !player.getInventory().getItemInMainHand().getType().equals(Material.SPAWNER) ) {
 			player.sendMessage(super.getStringFromConfig("require_spawner", "You are not holding a spawner!", true));
 			return;
 		}
-		if (!MobList.getValuesToString().contains(args[1].toUpperCase())) {
-			Manager.get(player, !player.hasPermission("jasp.*"), "moblist").onExecute(player,
+		if ( !MobList.getValuesToString().contains(args[1].toUpperCase()) ) {
+			CommandsManager.get(player, !player.hasPermission("jasp.*"), "moblist").onExecute(player,
 					new String[] { "moblist" });
 			return;
 		}
@@ -50,12 +49,12 @@ public class SetCommand extends SubCommand {
 		sType.setSpawnedType(EntityType.valueOf(args[1].toUpperCase()));
 		sMeta.setBlockState(sType);
 		List<String> lore = new ArrayList<>();
-		for (int i = 0; i < sMeta.getLore().size()
-				- plugin.cfg.getConfig().getStringList("spawner_description.lore").size(); i++)
+		for ( int i = 0 ; i < sMeta.getLore().size()
+				- getConfig().getStringList("spawner_description.lore").size() ; i++ )
 			lore.add(super.setColor(sMeta.getLore().get(i)));
 		sMeta.setLore(lore);
 		spawner.setItemMeta(sMeta);
-		if (plugin.cfg.getConfig().getBoolean("spawner_description.enable"))
+		if ( getConfig().getBoolean("spawner_description.enable") )
 			super.replaceLoreFromItem(spawner);
 		int amount = args.length < 3 ? 1
 				: (args[2].equalsIgnoreCase("all") ? spawner.getAmount()

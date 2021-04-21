@@ -1,62 +1,53 @@
 package me.TnKnight.JASP;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import org.bukkit.Material;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import net.md_5.bungee.api.ChatColor;
 
-public class PStorage {
+public class PStorage
+{
 
 	private static FileConfiguration getConfig() {
-		return JustAnotherSpawnerPickup.instance.cfg.getConfig();
+		return JustAnotherSpawnerPickup.instance.cfg.get();
 	}
 
 	private static FileConfiguration getCmds() {
-		return JustAnotherSpawnerPickup.instance.cmds.getConfig();
+		return JustAnotherSpawnerPickup.instance.cmds.get();
 	}
 
-	/**
-	 * 
-	 * @return Prefix of Plugin
-	 */
+	private static FileConfiguration getMenus() {
+		return JustAnotherSpawnerPickup.instance.menus.get();
+	}
+
 	public static String prefix = "&f[&1J&aA&cS&dP&f] ";
 
-	/**
-	 * Adds color(s) to given String by replacing from "&" to "§"
-	 *
-	 * @param input String to add color
-	 * @return A copy of the input string, with coloring
-	 */
-	public static String setColor(String input) {
+	public static String setColor( String input ) {
 		return ChatColor.translateAlternateColorCodes('&', input);
 	}
 
-	/**
-	 * Strips the given message of all color codes
-	 *
-	 * @param input String to strip of color
-	 * @return A copy of the input string, without any coloring
-	 */
-	public static String removeColor(String input) {
+	public static String removeColor( String input ) {
 		String finale = ChatColor.stripColor(setColor(input));
 		return finale;
 	}
 
-	/**
-	 * 
-	 * @param from Block to copy
-	 * @param to   Block to paste
-	 * @return
-	 */
-	public static BlockState setSpawn(BlockState from, BlockState to) {
+	public static BlockState setSpawn( BlockState from, BlockState to ) {
 		CreatureSpawner take = (CreatureSpawner) from;
 		CreatureSpawner give = (CreatureSpawner) to;
 		give.setSpawnedType(take.getSpawnedType());
@@ -68,42 +59,25 @@ public class PStorage {
 		return to;
 	}
 
-	/**
-	 * Checks if string is an Integer and not below zero
-	 * 
-	 * @param player to send message if false
-	 * @param string needs to be checked
-	 * @return false if not a number or below zero, otherwise true
-	 */
-	public static boolean isInt(Player player, String string) {
-		if (string == null)
+	public static boolean isInt( Player player, String string ) {
+		if ( string == null )
 			return false;
 		try {
 			int convert = Integer.parseInt(string);
-			if (convert < 0) {
-				String msg = "<input> is not allowed to be below zero!";
-				if (!getConfig().getString("below_zero").isEmpty())
-					msg = getConfig().getString("below_zero");
-				player.sendMessage(setColor(prefix + msg.replace("<input>", string)));
+			if ( convert < 0 ) {
+				String msg = getStringFromConfig("below_zero", "<input> is not allowed to be below zero!", true);
+				player.sendMessage(msg.replace("<input>", string));
 				return false;
 			}
-		} catch (NumberFormatException e) {
-			String msg = "<input> is not a number. Try another one!";
-			if (!getConfig().getString("not_a_number").isEmpty())
-				msg = getConfig().getString("not_a_number");
-			player.sendMessage(setColor(prefix + msg.replace("<input>", string)));
+		} catch ( NumberFormatException e ) {
+			String msg = getStringFromConfig("not_a_number", "<input> is not a number. Try another one!", true);
+			player.sendMessage(msg.replace("<input>", string));
 			return false;
 		}
 		return true;
 	}
 
-	/**
-	 * Loops through the lore of given ItemStack, then replace all variables by its
-	 * statistics.
-	 * 
-	 * @param item has lore needs to be replaced
-	 */
-	public void replaceLoreFromItem(ItemStack item) {
+	public static void replaceLoreFromItem( ItemStack item ) {
 		List<String> new_lore = item.getItemMeta().hasLore() ? item.getItemMeta().getLore() : new ArrayList<>();
 		BlockStateMeta sMeta = (BlockStateMeta) item.getItemMeta();
 		final CreatureSpawner info = (CreatureSpawner) sMeta.getBlockState();
@@ -124,17 +98,74 @@ public class PStorage {
 		item.setItemMeta(sMeta);
 	}
 
-	public String getStringFromConfig(final String path, String defaultString, final boolean prefix) {
+	public static String getStringFromConfig( final String path, String defaultString, final boolean prefix ) {
 		String def = defaultString;
-		if (getConfig().getString(path) != null && !getConfig().getString(path).isEmpty())
+		if ( getConfig().get(path) != null && !getConfig().getString(path).isEmpty() )
 			def = getConfig().getString(path);
 		return setColor((prefix ? PStorage.prefix : "") + def);
 	}
 
-	public String getStringFromCommands(final String path, String defaultString) {
+	public static String getStringFromCommands( final String path, String defaultString ) {
 		String def = defaultString;
-		if (getCmds().getString(path) != null && !getCmds().getString(path).isEmpty())
+		if ( getCmds().get(path) != null && !getCmds().getString(path).isEmpty() )
 			def = getCmds().getString(path);
 		return setColor(def);
+	}
+
+	public static String getStringFromMenus( final String path, String defaultString ) {
+		String def = defaultString;
+		if ( getMenus().get(path) != null && !getMenus().getString(path).isEmpty() )
+			def = getMenus().getString(path);
+		return setColor(def);
+	}
+
+	public static Integer getIntFromMenus( final String path, Integer defaultInt ) {
+		int def = defaultInt;
+		if ( getMenus().get(path) != null && getMenus().isInt(path) )
+			def = getMenus().getInt(path);
+		return def;
+	}
+
+	public static boolean getBooleanFromMenus( final String path, boolean defaultBoolean ) {
+		boolean def = defaultBoolean;
+		if ( getMenus().get(path) != null && getMenus().isBoolean(path) )
+			def = getMenus().getBoolean(path);
+		return def;
+	}
+
+	public static ItemStack getMaterialFromMenu( String itemMaterial, final int amount, String name ) {
+		itemMaterial = getStringFromMenus(itemMaterial, "DIRT");
+		Material material = Material.DIRT;
+		switch ( itemMaterial.toLowerCase() ) {
+			case "head" :
+				itemMaterial = "PLAYER_HEAD";
+			break;
+			case "mob_spawner" :
+				itemMaterial = "SPAWNER";
+			break;
+			case "none" :
+				material = Material.AIR;
+			break;
+			default :
+				itemMaterial = itemMaterial.toUpperCase();
+			break;
+		}
+		List<Material> materials = new ArrayList<>(Arrays.asList(Material.values()));
+		if ( materials.stream().map(Material::toString).collect(Collectors.toList()).contains(itemMaterial) )
+			material = Material.getMaterial(itemMaterial);
+		ItemStack item = new ItemStack(material);
+		if ( !material.equals(Material.AIR) ) {
+			ItemMeta iMeta = item.getItemMeta();
+			if ( name != null )
+				iMeta.setDisplayName(setColor(name));
+			item.setItemMeta(iMeta);
+			item.setAmount(amount);
+		}
+		return item;
+	}
+
+	public static Stream<ArmorStand> getArmorStands( Collection<Entity> entities ) {
+		return entities.stream().filter(e -> e.getType().equals(EntityType.ARMOR_STAND))
+				.filter(e -> ((ArmorStand) e).getHealth() == Listeners.serialNumber).map(e -> (ArmorStand) e);
 	}
 }

@@ -35,8 +35,8 @@ public class MobListCommand extends SubCommand {
 			builder.append(Interactions.HnC("&6" + mob, cmd + mob));
 			builder.append(super.setColor("&7" + (!mobs.hasNext() ? "." : ", ")));
 		}
-		builder.append(Interactions.HnC("\n" + Manager.get(player, checkPerm, "set").getSyntax(),
-				super.removeColor(Manager.get(player, checkPerm, "set").getSyntax())));
+		builder.append(Interactions.HnC("\n" + CommandsManager.get(player, checkPerm, "set").getSyntax(),
+				super.removeColor(CommandsManager.get(player, checkPerm, "set").getSyntax())));
 		player.spigot().sendMessage(builder.create());
 	}
 }

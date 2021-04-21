@@ -11,7 +11,8 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import me.TnKnight.JASP.JustAnotherSpawnerPickup;
 import me.TnKnight.JASP.PStorage;
 
-public class ConfigYML {
+public class ConfigYML
+{
 
 	JustAnotherSpawnerPickup plugin;
 
@@ -26,10 +27,10 @@ public class ConfigYML {
 	/**
 	 * Starts up by checking if config.yml is created, then load into memory
 	 */
-	public void onStart() {
-		if (file == null)
+	public void startup() {
+		if ( file == null )
 			file = new File(plugin.getDataFolder(), "config.yml");
-		if (!file.exists())
+		if ( !file.exists() )
 			plugin.saveResource("config.yml", false);
 		setConfig();
 	}
@@ -39,8 +40,8 @@ public class ConfigYML {
 	 * @return if config.yml is loaded
 	 */
 	public void reload() {
-		if (file == null || config == null)
-			onStart();
+		if ( file == null || config == null )
+			startup();
 		setConfig();
 	}
 
@@ -51,18 +52,18 @@ public class ConfigYML {
 	 * 
 	 * @returns Plugin's config.yml configuration
 	 */
-	public FileConfiguration getConfig() {
-		if (config == null)
+	public FileConfiguration get() {
+		if ( config == null )
 			reload();
 		return config;
 	}
 
 	private void setConfig() {
 		config = YamlConfiguration.loadConfiguration(file);
-		if (getConfig().getString("version") == null || getConfig().getString("version").isEmpty()
-				|| !getConfig().getString("version").equalsIgnoreCase(plugin.getDescription().getVersion())) {
-			for (File f : plugin.getDataFolder().listFiles())
-				if (f.getName().equalsIgnoreCase("config.yml.old"))
+		if ( get().getString("version") == null || get().getString("version").isEmpty()
+				|| !get().getString("version").equalsIgnoreCase(plugin.getDescription().getVersion()) ) {
+			for ( File f : plugin.getDataFolder().listFiles() )
+				if ( f.getName().equalsIgnoreCase("config.yml.old") )
 					f.delete();
 			file.renameTo(new File(plugin.getDataFolder(), "config.yml.old"));
 			file.delete();
@@ -73,11 +74,11 @@ public class ConfigYML {
 		}
 		try {
 			Reader defaultCfg = new InputStreamReader(plugin.getResource("config.yml"), "UTF8");
-			if (defaultCfg != null)
+			if ( defaultCfg != null )
 				config.setDefaults(YamlConfiguration.loadConfiguration(defaultCfg));
-			if (!getConfig().getString("prefix").isEmpty())
-				PStorage.prefix = getConfig().getString("prefix") + "&r ";
-		} catch (UnsupportedEncodingException e1) {
+			if ( !get().getString("prefix").isEmpty() )
+				PStorage.prefix = get().getString("prefix") + "&r ";
+		} catch ( UnsupportedEncodingException e1 ) {
 			plugin.sendMessage("&cCould not load config.yml, please move or delete file");
 			plugin.sendMessage("&cand let plugin create a new file for you!");
 		}

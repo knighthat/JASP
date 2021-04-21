@@ -4,7 +4,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-public class SetNameCommand extends SubCommand {
+public class SetNameCommand extends SubCommand
+{
 
 	@Override
 	public String getName() {
@@ -22,35 +23,31 @@ public class SetNameCommand extends SubCommand {
 	}
 
 	@Override
-	public void onExecute(Player player, String[] args) {
-		if (args.length < 2) {
-			player.spigot().sendMessage(getUsage().create());
+	public void onExecute( Player player, String[] args ) {
+		if ( argsChecker(player, args, 2, null, 0) )
 			return;
-		}
 		String input = new String();
-		for (int i = 1; i < args.length; i++)
+		for ( int i = 1 ; i < args.length ; i++ )
 			input = input.concat(" " + args[i]).trim();
-		int max = plugin.cfg.getConfig().isInt("name_length.max") ? plugin.cfg.getConfig().getInt("name_length.max")
-				: 15;
-		int min = plugin.cfg.getConfig().isInt("name_length.min") ? plugin.cfg.getConfig().getInt("name_length.min")
-				: 3;
-		boolean space = plugin.cfg.getConfig().isBoolean("name_length.space_counter")
-				? plugin.cfg.getConfig().getBoolean("name_length.space_counter")
+		int max = getConfig().isInt("name_length.max") ? getConfig().getInt("name_length.max") : 15;
+		int min = getConfig().isInt("name_length.min") ? getConfig().getInt("name_length.min") : 3;
+		boolean space = getConfig().isBoolean("name_length.space_counter")
+				? getConfig().getBoolean("name_length.space_counter")
 				: true;
-		boolean color = plugin.cfg.getConfig().isBoolean("name_length.color_code_counter")
-				? plugin.cfg.getConfig().getBoolean("name_length.color_code_counter")
+		boolean color = getConfig().isBoolean("name_length.color_code_counter")
+				? getConfig().getBoolean("name_length.color_code_counter")
 				: false;
 		int count = 0;
-		if (color)
-			for (char c : super.setColor(input).toCharArray())
-				if (String.valueOf(c).equalsIgnoreCase("§"))
+		if ( color )
+			for ( char c : super.setColor(input).toCharArray() )
+				if ( String.valueOf(c).equalsIgnoreCase("§") )
 					count++;
-		for (char c : super.removeColor(input).toCharArray()) {
+		for ( char c : super.removeColor(input).toCharArray() ) {
 			count++;
-			if (!space && String.valueOf(c).equalsIgnoreCase(" "))
+			if ( !space && String.valueOf(c).equalsIgnoreCase(" ") )
 				count--;
 		}
-		if (count > max || count < min) {
+		if ( count > max || count < min ) {
 			String maxStr = "Your name is too long. Maximum is <max> &ccharacters.";
 			String minStr = "Your name is too short. Minimum is <min> &ccharacters.";
 			String msg = super.getStringFromConfig(count > max ? "name_too_long" : "name_too_short",
@@ -58,7 +55,7 @@ public class SetNameCommand extends SubCommand {
 			player.sendMessage(
 					super.setColor(msg.replace("<min>", String.valueOf(min).replace("<max>", String.valueOf(max)))));
 		}
-		if (player.getInventory().getItemInMainHand().getAmount() > 1) {
+		if ( player.getInventory().getItemInMainHand().getAmount() > 1 ) {
 			ItemStack spawner = new ItemStack(player.getInventory().getItemInMainHand());
 			player.getInventory().getItemInMainHand().setAmount(spawner.getAmount() - 1);
 			spawner.setAmount(1);

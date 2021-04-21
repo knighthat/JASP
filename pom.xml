@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>me.TnKnight.JASP</groupId>
   <artifactId>JustAnotherSpawnerPickup</artifactId>
-  <version>0.1.1</version>
+  <version>0.1.2</version>
   <name>Just Another Spawner Pickup Plugin (JASP)</name>
   <description>Pickup and modify spawner as you want</description>
   <build>
@@ -12,8 +12,8 @@
               <artifactId>maven-compiler-plugin</artifactId>
               <version>3.8.1</version>
               <configuration>
-                  <source>1.7</source>
-                  <target>1.7</target>
+                  <source>1.8</source>
+                  <target>1.8</target>
               </configuration>
           </plugin>
       </plugins>

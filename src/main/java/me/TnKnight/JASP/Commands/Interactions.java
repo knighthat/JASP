@@ -18,100 +18,101 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 
-public class Interactions implements TabCompleter {
+public class Interactions implements TabCompleter
+{
 
 	JustAnotherSpawnerPickup plugin;
 
 	public Interactions(JustAnotherSpawnerPickup plugin) {
 		this.plugin = plugin;
-		for (SubCommand sub : Manager.sCommands)
+		for ( SubCommand sub : CommandsManager.sCommands )
 			subCommands.add(sub.getName());
 	}
 
 	private static List<String> subCommands = new ArrayList<>();
 
 	@Override
-	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+	public List<String> onTabComplete( CommandSender sender, Command command, String alias, String[] args ) {
 		List<String> result = new ArrayList<>();
 		List<String> amount = new ArrayList<>(Arrays.asList("1", "2", "5", "10"));
-		if (args.length == 1)
-			for (String sub : subCommands)
-				if (sub.startsWith(args[0].toLowerCase()))
+		if ( args.length == 1 )
+			for ( String sub : subCommands )
+				if ( sub.startsWith(args[0].toLowerCase()) )
 					result.add(sub);
 		List<String> subs = new ArrayList<>();
 		final boolean contains = subCommands.contains(args[0].toLowerCase());
-		if (args.length == 2 && contains) {
-			switch (args[0].toLowerCase()) {
-			case "set":
-				MobList.getValues().forEach(mob -> subs.add(mob.toString().toLowerCase()));
+		if ( args.length == 2 && contains ) {
+			switch ( args[0].toLowerCase() ) {
+				case "set" :
+					MobList.getValues().forEach(mob -> subs.add(mob.toString().toLowerCase()));
 				break;
-			case "lore":
-				for (String s : new String[] { "add", "set", "remove", "reset" })
-					subs.add(s);
+				case "lore" :
+					for ( String s : new String[] { "add", "set", "remove", "reset" } )
+						subs.add(s);
 				break;
-			case "modify":
-				for (String s : new String[] { "mindelay", "maxdelay", "playerrange", "count", "range" })
-					subs.add(s);
+				case "modify" :
+					for ( String s : new String[] { "mindelay", "maxdelay", "playerrange", "count", "range" } )
+						subs.add(s);
 				break;
-			case "setname":
-				subs.add("<name>");
+				case "setname" :
+					subs.add("<name>");
 				break;
-			case "clear":
-				subs.add("<radius>");
-				amount.forEach(amt -> subs.add(amt));
+				case "clear" :
+					subs.add("<radius>");
+					amount.forEach(amt -> subs.add(amt));
 				break;
 			}
-			for (String sub : subs)
-				if (sub.startsWith(args[1].toLowerCase()))
+			for ( String sub : subs )
+				if ( sub.startsWith(args[1].toLowerCase()) )
 					result.add(sub);
 		}
 		List<String> args2 = new ArrayList<>(
 				Arrays.asList("add", "set", "remove", "mindelay", "maxdelay", "playerrange", "range", "count"));
-		if (args.length == 3 && args[0].equalsIgnoreCase("set")
-				&& MobList.getValuesToString().contains(args[1].toUpperCase())) {
+		if ( args.length == 3 && args[0].equalsIgnoreCase("set")
+				&& MobList.getValuesToString().contains(args[1].toUpperCase()) ) {
 			result.add("<amount>");
 			amount.forEach(amt -> subs.add(amt));
 			subs.add("all");
-		} else if (args.length == 3 && contains && args2.contains(args[1].toLowerCase())) {
-			switch (args[1].toLowerCase()) {
-			case "add":
-				subs.add("<lore>");
+		} else if ( args.length == 3 && contains && args2.contains(args[1].toLowerCase()) ) {
+			switch ( args[1].toLowerCase() ) {
+				case "add" :
+					subs.add("<lore>");
 				break;
-			case "count":
-				subs.add("<count>");
-				amount.forEach(amt -> subs.add(amt));
+				case "count" :
+					subs.add("<count>");
+					amount.forEach(amt -> subs.add(amt));
 				break;
-			case "set":
-			case "remove":
-				subs.add("<line>");
-				amount.forEach(amt -> subs.add(amt));
+				case "set" :
+				case "remove" :
+					subs.add("<line>");
+					amount.forEach(amt -> subs.add(amt));
 				break;
-			case "mindelay":
-			case "maxdelay":
-				subs.add("<time>");
-				amount.forEach(amt -> subs.add(amt));
+				case "mindelay" :
+				case "maxdelay" :
+					subs.add("<time>");
+					amount.forEach(amt -> subs.add(amt));
 				break;
-			case "playerrange":
-			case "range":
-				subs.add("<range>");
-				amount.forEach(amt -> subs.add(amt));
+				case "playerrange" :
+				case "range" :
+					subs.add("<range>");
+					amount.forEach(amt -> subs.add(amt));
 				break;
 			}
-			for (String sub : subs)
-				if (sub.startsWith(args[2].toLowerCase()))
+			for ( String sub : subs )
+				if ( sub.startsWith(args[2].toLowerCase()) )
 					result.add(sub);
 		}
 		return result;
 	}
 
-	private static String setColor(String input) {
+	private static String setColor( String input ) {
 		return ChatColor.translateAlternateColorCodes('&', input);
 	}
 
-	public static TextComponent HnC(String display, String click) {
-		FileConfiguration cfg = JustAnotherSpawnerPickup.instance.cfg.getConfig();
+	public static TextComponent HnC( String display, String click ) {
+		FileConfiguration cfg = JustAnotherSpawnerPickup.instance.cfg.get();
 		String hoverDisplay = "Click here to get command: <command>";
-		if (!cfg.getString("hoverable_text").isEmpty())
+		if ( cfg.getString("hoverable_text") != null && !cfg.getString("hoverable_text").isEmpty() )
 			hoverDisplay = cfg.getString("hoverable_text");
 		TextComponent def = new TextComponent(setColor(display));
 		def.setClickEvent(new ClickEvent(Action.SUGGEST_COMMAND, click));

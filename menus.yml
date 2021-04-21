@@ -1,0 +1,48 @@
+statistic_menu:
+  information:
+    title: "Statistic Menu"
+    size: 1 #Multiply by 9, means that maximum size is 6 
+    fill: BLUE_STAINED_GLASS_PANE #NONE if you don't want anything appears on empty slots
+    fill_amount: 1
+  min_delay:
+    material: REDSTONE #What item should be displayed on the menu
+    amount: 1 #Number of item
+    name: "&cMinimum Delay: &4&l<min_delay>"
+    lore: []
+    glow: false #Enchanted appearance
+    position: 2  #From 1-54. If exceeds, 1 is the default.
+  max_delay:
+    material: GLOWSTONE
+    amount: 1
+    name: "&cMaximum Delay: &4&l<max_delay>"
+    lore: []
+    glow: false
+    position: 3
+  player_range:
+    material: PLAYER_HEAD
+    amount: 1
+    name: "&cPlayer Range: &4&l<player_range>"
+    lore: []
+    glow: false
+    position: 4
+  spawn_range:
+    material: GRASS_BLOCK
+    amount: 1
+    name: "&cSpawn Range: &4&l<range>"
+    lore: []
+    glow: false
+    position: 6
+  spawn_count:
+    material: STICK
+    amount: 1
+    name: "&cSpawn Count: &4&l<count>"
+    lore: []
+    glow: false
+    position: 7
+  spawned_type:
+    material: EGG
+    amount: 1
+    name: "&cSpawned Type: &4&l<mob>"
+    lore: []
+    glow: true
+    position: 8
