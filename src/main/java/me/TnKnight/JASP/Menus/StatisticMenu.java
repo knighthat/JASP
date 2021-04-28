@@ -10,6 +10,8 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import me.TnKnight.JASP.Files.GetFiles;
+
 public class StatisticMenu extends MenusManager
 {
 
@@ -48,10 +50,13 @@ public class StatisticMenu extends MenusManager
 		getMenus().getConfigurationSection("statistic_menu").getKeys(false).forEach(section -> {
 			String path = "statistic_menu." + section + ".";
 			if ( !section.equals("information") ) {
-				ItemStack item = getMaterialFromMenu(path + "material", getIntFromMenus(path + "amount", 1), null);
+				ItemStack item = getMaterialFromMenu(path + "material",
+						GetFiles.getInt(GetFiles.FileName.MENUS, path + "amount", 1), null);
 				ItemMeta iMeta = item.getItemMeta();
-				String name = getStringFromMenus(path + "name", "This item has no name!");
-				final String fromConfig = getStringFromConfig("spawner_description.time_unit", "", false).toUpperCase();
+				String name = GetFiles.getString(GetFiles.FileName.MENUS, path + "name", "This item has no name!",
+						false);
+				final String fromConfig = GetFiles
+						.getString(GetFiles.FileName.MENUS, "spawner_description.time_unit", "", false).toUpperCase();
 				final int timeUnit = fromConfig.equals("SECOND") ? 20 : fromConfig.equals("MINUTE") ? 1200 : 1;
 				name = name.replace("<min_delay>", String.valueOf(information.getMinSpawnDelay() / timeUnit));
 				name = name.replace("<max_delay>", String.valueOf(information.getMaxSpawnDelay() / timeUnit));
@@ -64,12 +69,12 @@ public class StatisticMenu extends MenusManager
 				for ( String line : getMenus().getStringList(path + "lore") )
 					lore.add(setColor(line));
 				iMeta.setLore(lore);
-				if ( getBooleanFromMenus(path + "glow", false) ) {
+				if ( GetFiles.getBoolean(GetFiles.FileName.MENUS, path + "glow", false) ) {
 					iMeta.addEnchant(Enchantment.DURABILITY, 1, false);
 					iMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 				}
 				item.setItemMeta(iMeta);
-				inventory.setItem(getIntFromMenus(path + "position", 1) - 1, item);
+				inventory.setItem(GetFiles.getInt(GetFiles.FileName.MENUS, path + "position", 1) - 1, item);
 			}
 		});
 	}

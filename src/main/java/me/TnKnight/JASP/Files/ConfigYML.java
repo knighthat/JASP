@@ -20,13 +20,9 @@ public class ConfigYML
 		this.plugin = plugin;
 	}
 
-	// Create variables
 	private File file = null;
 	private FileConfiguration config = null;
 
-	/**
-	 * Starts up by checking if config.yml is created, then load into memory
-	 */
 	public void startup() {
 		if ( file == null )
 			file = new File(plugin.getDataFolder(), "config.yml");
@@ -35,23 +31,12 @@ public class ConfigYML
 		setConfig();
 	}
 
-	/**
-	 * 
-	 * @return if config.yml is loaded
-	 */
 	public void reload() {
 		if ( file == null || config == null )
 			startup();
 		setConfig();
 	}
 
-	/**
-	 * Gets a FileConfiguration for this plugin, read through "config.yml" If there
-	 * is a default config.yml embedded in this plugin, it will be provided as a
-	 * default for this Configuration.
-	 * 
-	 * @returns Plugin's config.yml configuration
-	 */
 	public FileConfiguration get() {
 		if ( config == null )
 			reload();

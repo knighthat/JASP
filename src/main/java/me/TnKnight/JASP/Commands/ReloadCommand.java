@@ -2,6 +2,8 @@ package me.TnKnight.JASP.Commands;
 
 import org.bukkit.entity.Player;
 
+import me.TnKnight.JASP.Files.GetFiles;
+
 public class ReloadCommand extends SubCommand
 {
 
@@ -25,7 +27,7 @@ public class ReloadCommand extends SubCommand
 		plugin.cfg.reload();
 		plugin.cmds.reload();
 		plugin.menus.reload();
-		player.sendMessage(super.getStringFromConfig("reload", "Reloaded successfully!", true));
+		player.sendMessage(GetFiles.getString(GetFiles.FileName.CONFIG, "reload", "Reloaded successfully!", true));
 	}
 
 }

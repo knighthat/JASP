@@ -2,6 +2,8 @@ package me.TnKnight.JASP.Commands;
 
 import org.bukkit.entity.Player;
 
+import me.TnKnight.JASP.Files.GetFiles;
+
 public class ClearCommand extends SubCommand
 {
 
@@ -29,6 +31,6 @@ public class ClearCommand extends SubCommand
 			return;
 		super.getArmorStands(player.getWorld().getNearbyEntities(player.getLocation(), radius, radius, radius))
 				.forEach(armorStand -> armorStand.remove());
-		player.sendMessage(super.getStringFromConfig("clear_message", "Done!", true));
+		player.sendMessage(GetFiles.getString(GetFiles.FileName.CONFIG, "clear_message", "Done!", true));
 	}
 }

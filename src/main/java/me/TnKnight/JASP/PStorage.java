@@ -1,16 +1,19 @@
 package me.TnKnight.JASP;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.CreatureSpawner;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -19,32 +22,41 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import me.TnKnight.JASP.Files.GetFiles;
 import net.md_5.bungee.api.ChatColor;
 
 public class PStorage
 {
-
-	private static FileConfiguration getConfig() {
-		return JustAnotherSpawnerPickup.instance.cfg.get();
-	}
-
-	private static FileConfiguration getCmds() {
-		return JustAnotherSpawnerPickup.instance.cmds.get();
-	}
-
-	private static FileConfiguration getMenus() {
-		return JustAnotherSpawnerPickup.instance.menus.get();
-	}
-
 	public static String prefix = "&f[&1J&aA&cS&dP&f] ";
 
+	private static final String range = "([01]?[0-9][0-9]?|2[0-4][0-9]|25[0-5])";
+
+	public static final Pattern HEX_PATTERN = Pattern.compile("#[0-9a-zA-z]{6}");
+	public static final Pattern RGB_PATTERN = Pattern
+			.compile("#[(][ ]{0,1}" + range + "[,][ ]{0,1}" + range + "[,][ ]{0,1}" + range + "[)]");
+
 	public static String setColor( String input ) {
+		if ( hasRGB() )
+			for ( Pattern pattern : Arrays.asList(HEX_PATTERN, RGB_PATTERN) ) {
+				Matcher match = pattern.matcher(input);
+				while ( match.find() ) {
+					String color = input.substring(match.start(), match.end());
+					if ( pattern.equals(RGB_PATTERN) ) {
+						String code = color.replace("#(", "").replace(")", "");
+						int R = Integer.parseInt(code.split(",")[0].trim());
+						int G = Integer.parseInt(code.split(",")[1].trim());
+						int B = Integer.parseInt(code.split(",")[2].trim());
+						input = input.replace(color, String.valueOf(ChatColor.of(new Color(R, G, B))));
+					} else
+						input = input.replace(color, String.valueOf(ChatColor.of(color)));
+					match = pattern.matcher(input);
+				}
+			}
 		return ChatColor.translateAlternateColorCodes('&', input);
 	}
 
 	public static String removeColor( String input ) {
-		String finale = ChatColor.stripColor(setColor(input));
-		return finale;
+		return ChatColor.stripColor(setColor(input));
 	}
 
 	public static BlockState setSpawn( BlockState from, BlockState to ) {
@@ -65,12 +77,14 @@ public class PStorage
 		try {
 			int convert = Integer.parseInt(string);
 			if ( convert < 0 ) {
-				String msg = getStringFromConfig("below_zero", "<input> is not allowed to be below zero!", true);
+				String msg = GetFiles.getString(GetFiles.FileName.CONFIG, "below_zero",
+						"<input> is not allowed to be below zero!", true);
 				player.sendMessage(msg.replace("<input>", string));
 				return false;
 			}
 		} catch ( NumberFormatException e ) {
-			String msg = getStringFromConfig("not_a_number", "<input> is not a number. Try another one!", true);
+			String msg = GetFiles.getString(GetFiles.FileName.CONFIG, "not_a_number",
+					"<input> is not a number. Try another one!", true);
 			player.sendMessage(msg.replace("<input>", string));
 			return false;
 		}
@@ -81,9 +95,10 @@ public class PStorage
 		List<String> new_lore = item.getItemMeta().hasLore() ? item.getItemMeta().getLore() : new ArrayList<>();
 		BlockStateMeta sMeta = (BlockStateMeta) item.getItemMeta();
 		final CreatureSpawner info = (CreatureSpawner) sMeta.getBlockState();
-		final String fromConfig = getConfig().getString("spawner_description.time_unit").toUpperCase();
+		final String fromConfig = GetFiles
+				.getString(GetFiles.FileName.CONFIG, "spawner_description.time_unit", "SECOND", false).toUpperCase();
 		final int timeUnit = fromConfig.equals("SECOND") ? 20 : fromConfig.equals("MINUTE") ? 1200 : 1;
-		getConfig().getStringList("spawner_description.lore").forEach(line -> {
+		GetFiles.getStringList(GetFiles.FileName.CONFIG, "spawner_description.lore").forEach(line -> {
 			final String minDelay = String.valueOf(info.getMinSpawnDelay() / timeUnit);
 			final String maxDelay = String.valueOf(info.getMaxSpawnDelay() / timeUnit);
 			final String playerRange = String.valueOf(info.getRequiredPlayerRange() / timeUnit);
@@ -98,43 +113,8 @@ public class PStorage
 		item.setItemMeta(sMeta);
 	}
 
-	public static String getStringFromConfig( final String path, String defaultString, final boolean prefix ) {
-		String def = defaultString;
-		if ( getConfig().get(path) != null && !getConfig().getString(path).isEmpty() )
-			def = getConfig().getString(path);
-		return setColor((prefix ? PStorage.prefix : "") + def);
-	}
-
-	public static String getStringFromCommands( final String path, String defaultString ) {
-		String def = defaultString;
-		if ( getCmds().get(path) != null && !getCmds().getString(path).isEmpty() )
-			def = getCmds().getString(path);
-		return setColor(def);
-	}
-
-	public static String getStringFromMenus( final String path, String defaultString ) {
-		String def = defaultString;
-		if ( getMenus().get(path) != null && !getMenus().getString(path).isEmpty() )
-			def = getMenus().getString(path);
-		return setColor(def);
-	}
-
-	public static Integer getIntFromMenus( final String path, Integer defaultInt ) {
-		int def = defaultInt;
-		if ( getMenus().get(path) != null && getMenus().isInt(path) )
-			def = getMenus().getInt(path);
-		return def;
-	}
-
-	public static boolean getBooleanFromMenus( final String path, boolean defaultBoolean ) {
-		boolean def = defaultBoolean;
-		if ( getMenus().get(path) != null && getMenus().isBoolean(path) )
-			def = getMenus().getBoolean(path);
-		return def;
-	}
-
 	public static ItemStack getMaterialFromMenu( String itemMaterial, final int amount, String name ) {
-		itemMaterial = getStringFromMenus(itemMaterial, "DIRT");
+		itemMaterial = GetFiles.getString(GetFiles.FileName.MENUS, itemMaterial, "DIRT", false);
 		Material material = Material.DIRT;
 		switch ( itemMaterial.toLowerCase() ) {
 			case "head" :
@@ -167,5 +147,31 @@ public class PStorage
 	public static Stream<ArmorStand> getArmorStands( Collection<Entity> entities ) {
 		return entities.stream().filter(e -> e.getType().equals(EntityType.ARMOR_STAND))
 				.filter(e -> ((ArmorStand) e).getHealth() == Listeners.serialNumber).map(e -> (ArmorStand) e);
+	}
+
+	public static Integer colorCodeCounter( Player player, String input, final boolean countCodes,
+			final boolean countSpaces ) {
+		int count = removeColor(input).replaceAll(" ", "").toCharArray().length;
+		if ( hasRGB() )
+			for ( Pattern pattern : Arrays.asList(RGB_PATTERN, HEX_PATTERN) ) {
+				Matcher matcher = pattern.matcher(input);
+				while ( matcher.find() ) {
+					count++;
+					String color = input.substring(matcher.start(), matcher.end());
+					input = input.replace(color, "");
+					matcher = pattern.matcher(input);
+				}
+			}
+		for ( char c : setColor(input).toCharArray() )
+			if ( (countCodes && c == '§') || (countSpaces && c == ' ') )
+				count++;
+		return count;
+	}
+
+	public static final boolean hasRGB() {
+		String version = Bukkit.getServer().getVersion();
+		version = version.substring(version.lastIndexOf(':') + 2);
+		version = version.replace(version.substring(version.lastIndexOf('.')), "");
+		return Integer.parseInt(version.replace(")", "").replace("1.", "")) >= 16;
 	}
 }

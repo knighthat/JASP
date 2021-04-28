@@ -3,15 +3,16 @@ package me.TnKnight.JASP.Commands;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import me.TnKnight.JASP.JustAnotherSpawnerPickup;
 import me.TnKnight.JASP.PStorage;
+import me.TnKnight.JASP.Files.GetFiles;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 
@@ -53,7 +54,7 @@ public class CommandsManager extends PStorage implements CommandExecutor
 			SubCommand sub = sCommands.next();
 			if ( sub.getName().equalsIgnoreCase(name) ) {
 				if ( checkPerm && !player.hasPermission(perm) ) {
-					String msg = getStringFromConfig("no_permission",
+					String msg = GetFiles.getString(GetFiles.FileName.CONFIG, "no_permission",
 							"You don't have permission [<perm>] to execute that command!", true);
 					player.sendMessage(ChatColor.translateAlternateColorCodes('&', msg.replace("<perm>", perm)));
 					return null;
@@ -81,13 +82,9 @@ abstract class SubCommand extends PStorage
 	protected String synPath = "commands." + getName() + ".usage";
 	protected String getPerm = "jasp.command." + getName();
 
-	protected FileConfiguration getConfig() {
-		return plugin.cfg.get();
-	}
-
 	protected ComponentBuilder getUsage() {
 		ComponentBuilder builder = new ComponentBuilder(super.setColor(prefix));
-		String syntax = super.removeColor(super.getStringFromCommands(synPath, getSyntax()));
+		String syntax = super.removeColor(GetFiles.getString(GetFiles.FileName.COMMANDS, synPath, getSyntax(), false));
 		builder.append(Interactions.HnC(plugin.cfg.get().getString("usage").replace("<command>", syntax), syntax));
 		return builder;
 	}
@@ -100,4 +97,14 @@ abstract class SubCommand extends PStorage
 			player.spigot().sendMessage(getUsage().create());
 		return !pass;
 	}
+
+	protected final List<String> hasStatistic( List<String> lore ) {
+		List<String> new_lore = new ArrayList<>();
+		final Integer hasStats = lore.size()
+				- GetFiles.getStringList(GetFiles.FileName.CONFIG, "spawner_description.lore").size();
+		for ( int i = 0 ; i < (hasStats > 0 ? hasStats : lore.size()) ; i++ )
+			new_lore.add(lore.get(i));
+		return new_lore;
+	}
+
 }

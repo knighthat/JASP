@@ -109,6 +109,7 @@ public class Interactions implements TabCompleter
 		return ChatColor.translateAlternateColorCodes('&', input);
 	}
 
+	@SuppressWarnings("deprecation")
 	public static TextComponent HnC( String display, String click ) {
 		FileConfiguration cfg = JustAnotherSpawnerPickup.instance.cfg.get();
 		String hoverDisplay = "Click here to get command: <command>";

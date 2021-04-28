@@ -2,6 +2,7 @@ package me.TnKnight.JASP.Commands;
 
 import org.bukkit.entity.Player;
 
+import me.TnKnight.JASP.Files.GetFiles;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
 
@@ -25,14 +26,17 @@ public class HelpCommand extends SubCommand
 
 	@Override
 	public void onExecute( Player sender, String[] args ) {
-		String header = super.getStringFromConfig("help_header", "", true);
-		String footer = super.getStringFromConfig("help_footer", "", false);
+		String header = GetFiles.getString(GetFiles.FileName.CONFIG, "help_header", "", true);
+		String footer = GetFiles.getString(GetFiles.FileName.CONFIG, "help_footer", "", false);
 		ComponentBuilder builder = new ComponentBuilder(header);
 		for ( SubCommand sub : CommandsManager.sCommands ) {
-			final String syntax = super.getStringFromCommands(sub.synPath, sub.getSyntax());
-			final String description = super.getStringFromCommands(sub.desPath, sub.getDescription());
-			final String permission = super.getStringFromCommands("commands." + sub.getName() + ".permission",
-					sub.getName().equalsIgnoreCase("reload") ? "jasp.command.reload" : "jasp.command." + sub.getName());
+			final String syntax = GetFiles.getString(GetFiles.FileName.COMMANDS, sub.synPath, sub.getSyntax(), false);
+			final String description = GetFiles.getString(GetFiles.FileName.COMMANDS, sub.desPath, sub.getDescription(),
+					false);
+			final String permission = GetFiles.getString(GetFiles.FileName.COMMANDS,
+					"commands." + sub.getName() + ".permission",
+					sub.getName().equalsIgnoreCase("reload") ? "jasp.command.reload" : "jasp.command." + sub.getName(),
+					false);
 			builder.append(Interactions.HnC("\n" + syntax, super.removeColor(syntax)));
 			TextComponent des = new TextComponent(super.setColor(" " + description + " " + permission));
 			builder.append(des);

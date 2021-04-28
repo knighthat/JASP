@@ -13,6 +13,8 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import me.TnKnight.JASP.Files.GetFiles;
+
 public class Menu extends PStorage
 {
 	static Inventory inv;
@@ -22,9 +24,10 @@ public class Menu extends PStorage
 
 	public static void updateMenu() {
 		final String path = "statistic_menu.information.";
-		title = getStringFromMenus(path + "title", "");
-		slots = getIntFromMenus(path + "size", 1) * 9;
-		fill = getMaterialFromMenu(path + "fill", getIntFromMenus(path + "fill_amount", 1), " ");
+		title = GetFiles.getString(GetFiles.FileName.MENUS, path + "title", "", false);
+		slots = GetFiles.getInt(GetFiles.FileName.MENUS, path + "size", 1) * 9;
+		fill = getMaterialFromMenu(path + "fill", GetFiles.getInt(GetFiles.FileName.MENUS, path + "fill_amount", 1),
+				" ");
 	}
 
 	public static void getInventory( Player player, CreatureSpawner information ) {
@@ -35,10 +38,13 @@ public class Menu extends PStorage
 		menu.getConfigurationSection("statistic_menu").getKeys(false).forEach(section -> {
 			String path = "statistic_menu." + section + ".";
 			if ( !section.equals("information") ) {
-				ItemStack item = getMaterialFromMenu(path + "material", getIntFromMenus(path + "amount", 1), null);
+				ItemStack item = getMaterialFromMenu(path + "material",
+						GetFiles.getInt(GetFiles.FileName.MENUS, path + "amount", 1), null);
 				ItemMeta iMeta = item.getItemMeta();
-				String name = getStringFromMenus(path + "name", "This item has no name!");
-				final String fromConfig = getStringFromConfig("spawner_description.time_unit", "", false).toUpperCase();
+				String name = GetFiles.getString(GetFiles.FileName.MENUS, path + "name", "This item has no name!",
+						false);
+				final String fromConfig = GetFiles
+						.getString(GetFiles.FileName.CONFIG, "spawner_description.time_unit", "", false).toUpperCase();
 				final int timeUnit = fromConfig.equals("SECOND") ? 20 : fromConfig.equals("MINUTE") ? 1200 : 1;
 				name = name.replace("<min_delay>", String.valueOf(information.getMinSpawnDelay() / timeUnit));
 				name = name.replace("<max_delay>", String.valueOf(information.getMaxSpawnDelay() / timeUnit));
@@ -51,12 +57,12 @@ public class Menu extends PStorage
 				for ( String line : menu.getStringList(path + "lore") )
 					lore.add(setColor(line));
 				iMeta.setLore(lore);
-				if ( getBooleanFromMenus(path + "glow", false) ) {
+				if ( GetFiles.getBoolean(GetFiles.FileName.MENUS, path + "glow", false) ) {
 					iMeta.addEnchant(Enchantment.DURABILITY, 1, false);
 					iMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 				}
 				item.setItemMeta(iMeta);
-				inv.setItem(getIntFromMenus(path + "position", 1) - 1, item);
+				inv.setItem(GetFiles.getInt(GetFiles.FileName.MENUS, path + "position", 1) - 1, item);
 			}
 		});
 		player.openInventory(inv);

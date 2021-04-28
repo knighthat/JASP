@@ -1,8 +1,15 @@
 package me.TnKnight.JASP.Commands;
 
+import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+
+import me.TnKnight.JASP.PStorage;
+import me.TnKnight.JASP.Files.GetFiles;
 
 public class SetNameCommand extends SubCommand
 {
@@ -29,31 +36,34 @@ public class SetNameCommand extends SubCommand
 		String input = new String();
 		for ( int i = 1 ; i < args.length ; i++ )
 			input = input.concat(" " + args[i]).trim();
-		int max = getConfig().isInt("name_length.max") ? getConfig().getInt("name_length.max") : 15;
-		int min = getConfig().isInt("name_length.min") ? getConfig().getInt("name_length.min") : 3;
-		boolean space = getConfig().isBoolean("name_length.space_counter")
-				? getConfig().getBoolean("name_length.space_counter")
-				: true;
-		boolean color = getConfig().isBoolean("name_length.color_code_counter")
-				? getConfig().getBoolean("name_length.color_code_counter")
-				: false;
-		int count = 0;
-		if ( color )
-			for ( char c : super.setColor(input).toCharArray() )
-				if ( String.valueOf(c).equalsIgnoreCase("§") )
+		if ( !player.hasPermission("jasp.namelength.bypass") ) {
+			int count = super.removeColor(input).replaceAll(" ", "").toCharArray().length;
+			if ( super.hasRGB() )
+				for ( Pattern pattern : Arrays.asList(PStorage.HEX_PATTERN, PStorage.RGB_PATTERN) ) {
+					Matcher matcher = pattern.matcher(input);
+					while ( matcher.find() ) {
+						count++;
+						String color = input.substring(matcher.start(), matcher.end());
+						input = input.replace(color, "");
+						matcher = pattern.matcher(input);
+					}
+				}
+			boolean countCode = GetFiles.getBoolean(GetFiles.FileName.CONFIG, "name_length.color_code_counter", false);
+			boolean countSpace = GetFiles.getBoolean(GetFiles.FileName.CONFIG, "name_length.space_counter", true);
+			for ( char c : setColor(input).toCharArray() )
+				if ( (countCode && c == '§') || (countSpace && c == ' ') )
 					count++;
-		for ( char c : super.removeColor(input).toCharArray() ) {
-			count++;
-			if ( !space && String.valueOf(c).equalsIgnoreCase(" ") )
-				count--;
-		}
-		if ( count > max || count < min ) {
-			String maxStr = "Your name is too long. Maximum is <max> &ccharacters.";
-			String minStr = "Your name is too short. Minimum is <min> &ccharacters.";
-			String msg = super.getStringFromConfig(count > max ? "name_too_long" : "name_too_short",
-					count > max ? maxStr : minStr, true);
-			player.sendMessage(
-					super.setColor(msg.replace("<min>", String.valueOf(min).replace("<max>", String.valueOf(max)))));
+			int max = GetFiles.getInt(GetFiles.FileName.CONFIG, "name_length.max", 15);
+			int min = GetFiles.getInt(GetFiles.FileName.CONFIG, "name_length.min", 3);
+			if ( count > max || count < min ) {
+				String maxStr = "Your name is too long. Maximum is <max> &ccharacters.";
+				String minStr = "Your name is too short. Minimum is <min> &ccharacters.";
+				String msg = GetFiles.getString(GetFiles.FileName.CONFIG,
+						count > max ? "name_too_long" : "name_too_short", count > max ? maxStr : minStr, true);
+				msg = msg.replace("<min>", String.valueOf(min)).replace("<max>", String.valueOf(max));
+				player.sendMessage(super.setColor(msg));
+				return;
+			}
 		}
 		if ( player.getInventory().getItemInMainHand().getAmount() > 1 ) {
 			ItemStack spawner = new ItemStack(player.getInventory().getItemInMainHand());

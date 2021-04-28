@@ -8,6 +8,7 @@ import org.bukkit.inventory.InventoryHolder;
 
 import me.TnKnight.JASP.JustAnotherSpawnerPickup;
 import me.TnKnight.JASP.PStorage;
+import me.TnKnight.JASP.Files.GetFiles;
 
 public abstract class MenusManager extends PStorage implements InventoryHolder
 {
@@ -37,8 +38,8 @@ public abstract class MenusManager extends PStorage implements InventoryHolder
 	}
 
 	public void open() {
-		inventory = Bukkit.createInventory(this, super.getIntFromMenus(getSlots(), 1) * 9,
-				super.getStringFromMenus(getName(), noName));
+		inventory = Bukkit.createInventory(this, GetFiles.getInt(GetFiles.FileName.MENUS, getSlots(), 1) * 9,
+				GetFiles.getString(GetFiles.FileName.MENUS, getName(), noName, false));
 		this.setFillItem();
 		this.setMenuItems();
 		this.utility.getPlayer().openInventory(inventory);
@@ -46,8 +47,8 @@ public abstract class MenusManager extends PStorage implements InventoryHolder
 
 	public void setFillItem() {
 		for ( int i = 0 ; i < inventory.getSize() ; i++ )
-			inventory.setItem(i,
-					super.getMaterialFromMenu(getFillItem(), super.getIntFromMenus(getFillItemAmount(), 1), " "));
+			inventory.setItem(i, super.getMaterialFromMenu(getFillItem(),
+					GetFiles.getInt(GetFiles.FileName.MENUS, getFillItemAmount(), 1), " "));
 	}
 
 	public FileConfiguration getMenus() {

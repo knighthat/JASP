@@ -7,8 +7,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import me.TnKnight.JASP.Commands.Interactions;
 import me.TnKnight.JASP.Commands.CommandsManager;
+import me.TnKnight.JASP.Commands.Interactions;
 import me.TnKnight.JASP.Files.CommandsYML;
 import me.TnKnight.JASP.Files.ConfigYML;
 import me.TnKnight.JASP.Files.MenusYml;

@@ -1,8 +1,5 @@
 package me.TnKnight.JASP.Commands;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.bukkit.Material;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.EntityType;
@@ -11,6 +8,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 
 import me.TnKnight.JASP.MobList;
+import me.TnKnight.JASP.Files.GetFiles;
 
 public class SetCommand extends SubCommand
 {
@@ -35,7 +33,8 @@ public class SetCommand extends SubCommand
 		if ( argsChecker(player, args, 2, null, 0) )
 			return;
 		if ( !player.getInventory().getItemInMainHand().getType().equals(Material.SPAWNER) ) {
-			player.sendMessage(super.getStringFromConfig("require_spawner", "You are not holding a spawner!", true));
+			player.sendMessage(GetFiles.getString(GetFiles.FileName.CONFIG, "require_spawner",
+					"You are not holding a spawner!", true));
 			return;
 		}
 		if ( !MobList.getValuesToString().contains(args[1].toUpperCase()) ) {
@@ -48,13 +47,9 @@ public class SetCommand extends SubCommand
 		CreatureSpawner sType = (CreatureSpawner) sMeta.getBlockState();
 		sType.setSpawnedType(EntityType.valueOf(args[1].toUpperCase()));
 		sMeta.setBlockState(sType);
-		List<String> lore = new ArrayList<>();
-		for ( int i = 0 ; i < sMeta.getLore().size()
-				- getConfig().getStringList("spawner_description.lore").size() ; i++ )
-			lore.add(super.setColor(sMeta.getLore().get(i)));
-		sMeta.setLore(lore);
+		sMeta.setLore(hasStatistic(sMeta.getLore()));
 		spawner.setItemMeta(sMeta);
-		if ( getConfig().getBoolean("spawner_description.enable") )
+		if ( GetFiles.getBoolean(GetFiles.FileName.CONFIG, "spawner_description.enable", false) )
 			super.replaceLoreFromItem(spawner);
 		int amount = args.length < 3 ? 1
 				: (args[2].equalsIgnoreCase("all") ? spawner.getAmount()

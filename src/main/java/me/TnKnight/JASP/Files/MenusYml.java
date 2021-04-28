@@ -20,13 +20,9 @@ public class MenusYml
 		this.plugin = plugin;
 	}
 
-	// Create variables
 	private File file = null;
 	private FileConfiguration cfg = null;
 
-	/**
-	 * Starts up by checking if commands.yml is created, then load into memory
-	 */
 	public void startup() {
 		if ( file == null )
 			file = new File(plugin.getDataFolder(), "menus.yml");
@@ -35,23 +31,12 @@ public class MenusYml
 		setCommands();
 	}
 
-	/**
-	 * 
-	 * @return if commands.yml is loaded
-	 */
 	public void reload() {
 		if ( file == null || cfg == null )
 			startup();
 		setCommands();
 	}
 
-	/**
-	 * Gets a FileConfiguration for this plugin, read through "commands.yml" If
-	 * there is a default commands.yml embedded in this plugin, it will be provided
-	 * as a default for this Configuration.
-	 * 
-	 * @returns Plugin's commands.yml configuration
-	 */
 	public FileConfiguration get() {
 		if ( cfg == null )
 			reload();

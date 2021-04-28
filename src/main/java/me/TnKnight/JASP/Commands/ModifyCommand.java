@@ -1,13 +1,12 @@
 package me.TnKnight.JASP.Commands;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.bukkit.Material;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
+
+import me.TnKnight.JASP.Files.GetFiles;
 
 public class ModifyCommand extends SubCommand
 {
@@ -32,7 +31,8 @@ public class ModifyCommand extends SubCommand
 		if ( argsChecker(player, args, 3, new String[] { "mindelay", "maxdelay", "playerrange", "count", "range" }, 1) )
 			return;
 		if ( !player.getInventory().getItemInMainHand().getType().equals(Material.SPAWNER) ) {
-			player.sendMessage(super.getStringFromConfig("require_spawner", "You are not holding a spawner!", true));
+			player.sendMessage(GetFiles.getString(GetFiles.FileName.CONFIG, "require_spawner",
+					"You are not holding a spawner!", true));
 			return;
 		}
 		if ( !super.isInt(player, args[2]) )
@@ -45,11 +45,8 @@ public class ModifyCommand extends SubCommand
 		switch ( args[1].toLowerCase() ) {
 			case "mindelay" :
 				if ( time > sType.getMaxSpawnDelay() ) {
-					String msg = super.getStringFromConfig("min_delay_too_high",
-							"<input> is higher than <max_delay> - max delay!", true);
-					msg = msg.replace("<min>", String.valueOf(sType.getMinSpawnDelay()).replace("<max>",
-							String.valueOf(sType.getMaxSpawnDelay())));
-					player.sendMessage(msg);
+					sendError(player, "min_delay_too_high", "<input> is higher than <max_delay> - max delay!",
+							sType.getMinSpawnDelay(), true);
 					return;
 				}
 				sType.setMinSpawnDelay(time);
@@ -57,11 +54,8 @@ public class ModifyCommand extends SubCommand
 
 			case "maxdelay" :
 				if ( time < sType.getMinSpawnDelay() ) {
-					String msg = super.getStringFromConfig("max_delay_too_low",
-							"<input> is low than <min_delay> - min delay!", true);
-					msg = msg.replace("<min>", String.valueOf(sType.getMinSpawnDelay()).replace("<max>",
-							String.valueOf(sType.getMaxSpawnDelay())));
-					player.sendMessage(msg);
+					sendError(player, "max_delay_too_low", "<input> is low than <min_delay> - min delay!",
+							sType.getMaxSpawnDelay(), false);
 					return;
 				}
 				sType.setMaxSpawnDelay(time);
@@ -77,17 +71,18 @@ public class ModifyCommand extends SubCommand
 			break;
 		}
 		sMeta.setBlockState(sType);
-		List<String> lore = new ArrayList<>();
-		for ( int i = 0 ; i < sMeta.getLore().size()
-				- getConfig().getStringList("spawner_description.lore").size() ; i++ )
-			lore.add(super.setColor(sMeta.getLore().get(i)));
-		sMeta.setLore(lore);
+		sMeta.setLore(hasStatistic(sMeta.getLore()));
 		spawner.setItemMeta(sMeta);
-		if ( getConfig().getBoolean("spawner_description.enable") )
+		if ( GetFiles.getBoolean(GetFiles.FileName.CONFIG, "spawner_description.enable", false) )
 			super.replaceLoreFromItem(spawner);
 		player.getInventory().getItemInMainHand().setAmount(player.getInventory().getItemInMainHand().getAmount() - 1);
 		player.getInventory().addItem(spawner);
 		player.updateInventory();
+	}
 
+	private void sendError( Player player, String path, String defaultMsg, Integer replacement, boolean minDelay ) {
+		String msg = GetFiles.getString(GetFiles.FileName.CONFIG, path, defaultMsg, true);
+		msg = msg.replace(minDelay ? "<min>" : "<max>", String.valueOf(replacement));
+		player.sendMessage(msg);
 	}
 }

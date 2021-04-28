@@ -1,12 +1,13 @@
 package me.TnKnight.JASP.Commands;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+
+import me.TnKnight.JASP.Files.GetFiles;
 
 public class LoreCommand extends SubCommand
 {
@@ -36,20 +37,16 @@ public class LoreCommand extends SubCommand
 			player.spigot().sendMessage(getUsage().create());
 			return;
 		}
-		final boolean enabled = getConfig().getBoolean("spawner_description.enable");
+		final boolean enabled = GetFiles.getBoolean(GetFiles.FileName.CONFIG, "spawner_description.enable", false);
 		if ( !player.getInventory().getItemInMainHand().getType().equals(Material.SPAWNER) ) {
-			player.sendMessage(super.getStringFromConfig("require_spawner", "You are not holding a spawner!", true));
+			player.sendMessage(GetFiles.getString(GetFiles.FileName.CONFIG, "require_spawner",
+					"You are not holding a spawner!", true));
 			return;
 		}
 		int amount = 1;
 		ItemStack spawner = new ItemStack(player.getInventory().getItemInMainHand());
 		ItemMeta sMeta = spawner.getItemMeta();
-		List<String> sLore = new ArrayList<>();
-		if ( enabled && sMeta.hasLore()
-				&& sMeta.getLore().size() >= getConfig().getStringList("spawner_description.lore").size() )
-			for ( int i = 0 ; i < sMeta.getLore().size()
-					- getConfig().getStringList("spawner_description.lore").size() ; i++ )
-				sLore.add(sMeta.getLore().get(i));
+		List<String> sLore = hasStatistic(sMeta.getLore());
 		String str = new String();
 		for ( int i = getArgs ; i < args.length ; i++ )
 			str = str.concat(" " + args[i]).trim();
@@ -66,7 +63,7 @@ public class LoreCommand extends SubCommand
 					return;
 				line = Integer.parseInt(args[getArgs - 1]) - 1;
 				if ( line >= sLore.size() ) {
-					String msg = super.getStringFromConfig("out_of_bound",
+					String msg = GetFiles.getString(GetFiles.FileName.CONFIG, "out_of_bound",
 							"<line> is over the roof. Please make it smaller!", true);
 					player.sendMessage(msg.replace("<line>", args[2]));
 					return;
@@ -106,8 +103,8 @@ public class LoreCommand extends SubCommand
 		if ( !super.isInt(player, input) )
 			return false;
 		if ( Integer.parseInt(input) > player.getInventory().getItemInMainHand().getAmount() ) {
-			String msg = super.getStringFromConfig("out_of_bound", "<line> is over the roof. Please make it smaller!",
-					true);
+			String msg = GetFiles.getString(GetFiles.FileName.CONFIG, "out_of_bound",
+					"<line> is over the roof. Please make it smaller!", true);
 			player.sendMessage(msg.replace("<line>", input));
 			return false;
 		}
