@@ -19,7 +19,7 @@ public class LoreCommand extends SubCommand
 
 	@Override
 	public String getDescription() {
-		return "add/set/remove/reset lore of holding spawner.";
+		return "adds/sets/removes/resets lore of holding spawner.";
 	}
 
 	@Override
@@ -38,15 +38,16 @@ public class LoreCommand extends SubCommand
 			return;
 		}
 		final boolean enabled = GetFiles.getBoolean(GetFiles.FileName.CONFIG, "spawner_description.enable", false);
-		if ( !player.getInventory().getItemInMainHand().getType().equals(Material.SPAWNER) ) {
+		ItemStack holding = player.getInventory().getItemInMainHand();
+		if ( !holding.getType().equals(Material.SPAWNER) ) {
 			player.sendMessage(GetFiles.getString(GetFiles.FileName.CONFIG, "require_spawner",
 					"You are not holding a spawner!", true));
 			return;
 		}
 		int amount = 1;
-		ItemStack spawner = new ItemStack(player.getInventory().getItemInMainHand());
+		ItemStack spawner = new ItemStack(holding);
 		ItemMeta sMeta = spawner.getItemMeta();
-		List<String> sLore = hasStatistic(sMeta.getLore());
+		List<String> sLore = getStatistics(sMeta.getLore());
 		String str = new String();
 		for ( int i = getArgs ; i < args.length ; i++ )
 			str = str.concat(" " + args[i]).trim();
@@ -59,13 +60,13 @@ public class LoreCommand extends SubCommand
 			case "set" :
 			case "remove" :
 				int line = 1;
-				if ( !numberChecking(player, args[getArgs - 1]) )
+				if ( !super.isInt(player, args[getArgs - 1]) )
 					return;
 				line = Integer.parseInt(args[getArgs - 1]) - 1;
 				if ( line >= sLore.size() ) {
 					String msg = GetFiles.getString(GetFiles.FileName.CONFIG, "out_of_bound",
-							"<line> is over the roof. Please make it smaller!", true);
-					player.sendMessage(msg.replace("<line>", args[2]));
+							"<input> is over the roof. Please make it smaller!", true);
+					player.sendMessage(msg.replace("<input>", args[2]));
 					return;
 				}
 				if ( args[1].equalsIgnoreCase("set") ) {
@@ -75,8 +76,7 @@ public class LoreCommand extends SubCommand
 			break;
 			case "reset" :
 				if ( args.length > 2 && (args[2].equalsIgnoreCase("all") || numberChecking(player, args[2])) )
-					amount = args[2].equalsIgnoreCase("all") ? player.getInventory().getItemInMainHand().getAmount()
-							: Integer.parseInt(args[2]);
+					amount = args[2].equalsIgnoreCase("all") ? holding.getAmount() : Integer.parseInt(args[2]);
 				sLore.clear();
 			break;
 
@@ -89,12 +89,8 @@ public class LoreCommand extends SubCommand
 		if ( enabled )
 			super.replaceLoreFromItem(spawner);
 		spawner.setAmount(amount);
-		if ( player.getInventory().getItemInMainHand().getAmount() > 1 ) {
-			player.getInventory().getItemInMainHand()
-					.setAmount(player.getInventory().getItemInMainHand().getAmount() - amount);
-			player.getInventory().addItem(spawner);
-		} else
-			player.getInventory().setItemInMainHand(spawner);
+		holding.setAmount(holding.getAmount() - amount);
+		player.getInventory().addItem(spawner);
 		player.updateInventory();
 		return;
 	}

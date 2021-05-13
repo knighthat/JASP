@@ -13,7 +13,6 @@ import org.bukkit.entity.Player;
 import me.TnKnight.JASP.JustAnotherSpawnerPickup;
 import me.TnKnight.JASP.PStorage;
 import me.TnKnight.JASP.Files.GetFiles;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 
 public class CommandsManager extends PStorage implements CommandExecutor
@@ -28,6 +27,7 @@ public class CommandsManager extends PStorage implements CommandExecutor
 		sCommands.add(new LoreCommand());
 		sCommands.add(new ClearCommand());
 		sCommands.add(new ModifyCommand());
+		sCommands.add(new GetEggCommand());
 	}
 
 	public static ArrayList<SubCommand> sCommands = new ArrayList<>();
@@ -49,14 +49,13 @@ public class CommandsManager extends PStorage implements CommandExecutor
 
 	public static SubCommand get( Player player, boolean checkPerm, String name ) {
 		final String perm = name.equalsIgnoreCase("reload") ? "jasp.admin.reload" : "jasp.command." + name;
+		List<String> exceptions = new ArrayList<>(Arrays.asList("getegg"));
 		Iterator<SubCommand> sCommands = CommandsManager.sCommands.iterator();
 		while ( sCommands.hasNext() ) {
 			SubCommand sub = sCommands.next();
 			if ( sub.getName().equalsIgnoreCase(name) ) {
-				if ( checkPerm && !player.hasPermission(perm) ) {
-					String msg = GetFiles.getString(GetFiles.FileName.CONFIG, "no_permission",
-							"You don't have permission [<perm>] to execute that command!", true);
-					player.sendMessage(ChatColor.translateAlternateColorCodes('&', msg.replace("<perm>", perm)));
+				if ( !exceptions.contains(name.toLowerCase()) && checkPerm && !player.hasPermission(perm) ) {
+					GetFiles.noPerm(player, perm);
 					return null;
 				}
 				return sub;
@@ -98,10 +97,14 @@ abstract class SubCommand extends PStorage
 		return !pass;
 	}
 
-	protected final List<String> hasStatistic( List<String> lore ) {
+	protected List<String> getStatistics( List<String> lore ) {
 		List<String> new_lore = new ArrayList<>();
-		final Integer hasStats = lore.size()
+		if ( lore.isEmpty() )
+			return new_lore;
+		Integer hasStats = lore.size()
 				- GetFiles.getStringList(GetFiles.FileName.CONFIG, "spawner_description.lore").size();
+		if ( hasStats <= 0 )
+			return new_lore;
 		for ( int i = 0 ; i < (hasStats > 0 ? hasStats : lore.size()) ; i++ )
 			new_lore.add(lore.get(i));
 		return new_lore;

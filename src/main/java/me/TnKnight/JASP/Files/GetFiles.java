@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 
 import me.TnKnight.JASP.JustAnotherSpawnerPickup;
 import me.TnKnight.JASP.PStorage;
@@ -52,6 +53,13 @@ public class GetFiles
 		return defaultInt;
 	}
 
+	public static Double getDouble( FileName fileName, String path, Double defaultDouble ) {
+		if ( getFile(fileName).get(path) != null
+				&& (getFile(fileName).isDouble(path) || getFile(fileName).isInt(path)) )
+			defaultDouble = getFile(fileName).getDouble(path);
+		return defaultDouble;
+	}
+
 	public static boolean getBoolean( FileName fileName, String path, boolean defaultBoolean ) {
 		if ( getFile(fileName).get(path) != null && getFile(fileName).isBoolean(path) )
 			defaultBoolean = getFile(fileName).getBoolean(path);
@@ -63,5 +71,11 @@ public class GetFiles
 		if ( getFile(fileName).get(path) != null )
 			stringList = getFile(fileName).getStringList(path);
 		return stringList;
+	}
+
+	public static void noPerm( Player player, String permission ) {
+		String msg = getString(FileName.CONFIG, "no_permission",
+				"You don't have permisson [<perm>] to execute that command!", true);
+		player.sendMessage(msg.replace("<perm>", permission));
 	}
 }

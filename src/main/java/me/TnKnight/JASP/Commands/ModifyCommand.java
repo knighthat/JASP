@@ -18,7 +18,7 @@ public class ModifyCommand extends SubCommand
 
 	@Override
 	public String getDescription() {
-		return "Modify spawner's statistics.";
+		return "Modifies spawner's statistics.";
 	}
 
 	@Override
@@ -71,7 +71,7 @@ public class ModifyCommand extends SubCommand
 			break;
 		}
 		sMeta.setBlockState(sType);
-		sMeta.setLore(hasStatistic(sMeta.getLore()));
+		sMeta.setLore(getStatistics(sMeta.getLore()));
 		spawner.setItemMeta(sMeta);
 		if ( GetFiles.getBoolean(GetFiles.FileName.CONFIG, "spawner_description.enable", false) )
 			super.replaceLoreFromItem(spawner);

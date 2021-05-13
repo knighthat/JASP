@@ -20,7 +20,7 @@ public class SetCommand extends SubCommand
 
 	@Override
 	public String getDescription() {
-		return "Set a specific mod to holding spawner.";
+		return "Sets a specific mod to holding spawner.";
 	}
 
 	@Override
@@ -47,7 +47,7 @@ public class SetCommand extends SubCommand
 		CreatureSpawner sType = (CreatureSpawner) sMeta.getBlockState();
 		sType.setSpawnedType(EntityType.valueOf(args[1].toUpperCase()));
 		sMeta.setBlockState(sType);
-		sMeta.setLore(hasStatistic(sMeta.getLore()));
+		sMeta.setLore(getStatistics(sMeta.getLore()));
 		spawner.setItemMeta(sMeta);
 		if ( GetFiles.getBoolean(GetFiles.FileName.CONFIG, "spawner_description.enable", false) )
 			super.replaceLoreFromItem(spawner);

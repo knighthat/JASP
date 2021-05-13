@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -21,7 +22,7 @@ public class SetNameCommand extends SubCommand
 
 	@Override
 	public String getDescription() {
-		return "Name your spawner.";
+		return "Sets a name for your spawner.";
 	}
 
 	@Override
@@ -33,6 +34,11 @@ public class SetNameCommand extends SubCommand
 	public void onExecute( Player player, String[] args ) {
 		if ( argsChecker(player, args, 2, null, 0) )
 			return;
+		if ( !player.getInventory().getItemInMainHand().getType().equals(Material.SPAWNER) ) {
+			player.sendMessage(GetFiles.getString(GetFiles.FileName.CONFIG, "require_spawner",
+					"You are not holding a spawner!", true));
+			return;
+		}
 		String input = new String();
 		for ( int i = 1 ; i < args.length ; i++ )
 			input = input.concat(" " + args[i]).trim();

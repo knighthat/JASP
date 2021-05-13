@@ -14,7 +14,7 @@ public class ClearCommand extends SubCommand
 
 	@Override
 	public String getDescription() {
-		return "Clear plugin's floating name and lore";
+		return "Clears plugin's floating name and lore";
 	}
 
 	@Override

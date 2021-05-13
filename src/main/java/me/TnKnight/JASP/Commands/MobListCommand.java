@@ -7,7 +7,8 @@ import org.bukkit.entity.Player;
 import me.TnKnight.JASP.MobList;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 
-public class MobListCommand extends SubCommand {
+public class MobListCommand extends SubCommand
+{
 
 	@Override
 	public String getName() {
@@ -16,7 +17,7 @@ public class MobListCommand extends SubCommand {
 
 	@Override
 	public String getDescription() {
-		return "List all the mobs that are available on this server.";
+		return "Lists all the mobs that are available on this server.";
 	}
 
 	@Override
@@ -25,11 +26,11 @@ public class MobListCommand extends SubCommand {
 	}
 
 	@Override
-	public void onExecute(Player player, String[] args) {
+	public void onExecute( Player player, String[] args ) {
 		final boolean checkPerm = !player.hasPermission("jasp.*");
 		ComponentBuilder builder = new ComponentBuilder("");
 		Iterator<String> mobs = MobList.getValuesToString().iterator();
-		while (mobs.hasNext()) {
+		while ( mobs.hasNext() ) {
 			String cmd = "/jasp set ";
 			final String mob = mobs.next().toLowerCase();
 			builder.append(Interactions.HnC("&6" + mob, cmd + mob));

@@ -11,14 +11,14 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 import me.TnKnight.JASP.JustAnotherSpawnerPickup;
 import me.TnKnight.JASP.MobList;
-import net.md_5.bungee.api.ChatColor;
+import me.TnKnight.JASP.PStorage;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ClickEvent.Action;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 
-public class Interactions implements TabCompleter
+public class Interactions extends PStorage implements TabCompleter
 {
 
 	JustAnotherSpawnerPickup plugin;
@@ -61,6 +61,10 @@ public class Interactions implements TabCompleter
 					subs.add("<radius>");
 					amount.forEach(amt -> subs.add(amt));
 				break;
+				case "getegg" :
+					for ( String mobString : MobList.getValuesToString() )
+						subs.add(mobString);
+				break;
 			}
 			for ( String sub : subs )
 				if ( sub.startsWith(args[1].toLowerCase()) )
@@ -68,11 +72,12 @@ public class Interactions implements TabCompleter
 		}
 		List<String> args2 = new ArrayList<>(
 				Arrays.asList("add", "set", "remove", "mindelay", "maxdelay", "playerrange", "range", "count"));
-		if ( args.length == 3 && args[0].equalsIgnoreCase("set")
+		if ( args.length == 3 && (args[0].equalsIgnoreCase("set") || args[0].equalsIgnoreCase("getegg"))
 				&& MobList.getValuesToString().contains(args[1].toUpperCase()) ) {
 			result.add("<amount>");
 			amount.forEach(amt -> subs.add(amt));
-			subs.add("all");
+			if ( args[0].equalsIgnoreCase("set") )
+				subs.add("all");
 		} else if ( args.length == 3 && contains && args2.contains(args[1].toLowerCase()) ) {
 			switch ( args[1].toLowerCase() ) {
 				case "add" :
@@ -103,10 +108,6 @@ public class Interactions implements TabCompleter
 					result.add(sub);
 		}
 		return result;
-	}
-
-	private static String setColor( String input ) {
-		return ChatColor.translateAlternateColorCodes('&', input);
 	}
 
 	@SuppressWarnings("deprecation")

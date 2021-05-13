@@ -145,8 +145,15 @@ public class PStorage
 	}
 
 	public static Stream<ArmorStand> getArmorStands( Collection<Entity> entities ) {
-		return entities.stream().filter(e -> e.getType().equals(EntityType.ARMOR_STAND))
-				.filter(e -> ((ArmorStand) e).getHealth() == Listeners.serialNumber).map(e -> (ArmorStand) e);
+		List<ArmorStand> armorStands = new ArrayList<>();
+		entities.stream().filter(e -> e.getType().equals(EntityType.ARMOR_STAND)).forEach(entity -> {
+			ArmorStand as = (ArmorStand) entity;
+			if ( as.getHealth() == Listeners.nameSerial )
+				armorStands.add(as);
+			if ( as.getHealth() == Listeners.loreSerial )
+				armorStands.add(as);
+		});
+		return armorStands.stream();
 	}
 
 	public static Integer colorCodeCounter( Player player, String input, final boolean countCodes,
